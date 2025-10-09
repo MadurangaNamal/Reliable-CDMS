@@ -15,6 +15,9 @@ namespace ReliableCDMS
         ServiceResponse DeleteUser(int userId, string authUsername, string authPassword);
 
         [OperationContract]
+        ServiceResponse ActivateUser(int userId, string authUsername, string authPassword);
+
+        [OperationContract]
         UserInfo GetUser(int userId, string authUsername, string authPassword);
 
         [OperationContract]

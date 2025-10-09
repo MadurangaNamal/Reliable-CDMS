@@ -96,6 +96,11 @@ namespace ReliableCDMS
                 int userId = Convert.ToInt32(e.CommandArgument);
                 DeleteUser(userId);
             }
+            else if (e.CommandName == "ActivateUser")
+            {
+                int userId = Convert.ToInt32(e.CommandArgument);
+                ActivateUser(userId);
+            }
         }
 
         /// <summary>
@@ -133,6 +138,36 @@ namespace ReliableCDMS
             catch (Exception ex)
             {
                 ShowError("Error deactivating user: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Activate a deactivated user
+        /// </summary>
+        private void ActivateUser(int userId)
+        {
+            try
+            {
+                bool success = userDAL.ActivateUser(userId);
+
+                if (success)
+                {
+                    int currentUserId = Convert.ToInt32(Session["UserId"]);
+                    AuditHelper.LogAction(currentUserId, "Activate User",
+                        $"Activated user ID: {userId}",
+                        Request.UserHostAddress);
+
+                    ShowSuccess("User activated successfully!");
+                    LoadUsers();
+                }
+                else
+                {
+                    ShowError("Failed to activate user.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError("Error activating user: " + ex.Message);
             }
         }
 

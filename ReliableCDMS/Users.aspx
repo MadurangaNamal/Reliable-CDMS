@@ -111,12 +111,22 @@
                             <asp:BoundField DataField="CreatedDate" HeaderText="Created Date" DataFormatString="{0:MMM dd, yyyy}" />
                             <asp:TemplateField HeaderText="Actions">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="btnDeleteUser" runat="server" 
-                                        CssClass="btn btn-sm btn-danger"
+                                    <asp:LinkButton ID="btnActivate" runat="server" 
+                                        CssClass="btn btn-sm btn-success me-1"
+                                        CommandName="ActivateUser" 
+                                        CommandArgument='<%# Eval("UserId") %>'
+                                        CausesValidation="false"
+                                        Visible='<%# !Convert.ToBoolean(Eval("IsActive")) %>'>
+                                        <i class="fas fa-user-check"></i> Activate
+                                    </asp:LinkButton>
+                                    
+                                    <asp:LinkButton ID="btnDeactivate" runat="server" 
+                                        CssClass="btn btn-sm btn-warning me-1"
                                         CommandName="DeleteUser" 
                                         CommandArgument='<%# Eval("UserId") %>'
                                         OnClientClick="return confirm('Are you sure you want to deactivate this user?');"
-                                        CausesValidation="false">
+                                        CausesValidation="false"
+                                        Visible='<%# Convert.ToBoolean(Eval("IsActive")) %>'>
                                         <i class="fas fa-user-times"></i> Deactivate
                                     </asp:LinkButton>
                                 </ItemTemplate>

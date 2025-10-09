@@ -138,6 +138,7 @@ namespace ReliableCDMS
                 // Authenticate
                 int authUserId;
                 string authUserRole;
+
                 if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
@@ -169,6 +170,50 @@ namespace ReliableCDMS
                 else
                 {
                     return new ServiceResponse { Success = false, Message = "User not found or delete failed" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse { Success = false, Message = "Error: " + ex.Message };
+            }
+        }
+
+        /// <summary>
+        /// Activate user
+        /// </summary>
+        public ServiceResponse ActivateUser(int userId, string authUsername, string authPassword)
+        {
+            try
+            {
+                // Authenticate service user
+                int authUserId;
+                string authUserRole;
+
+                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                {
+                    return new ServiceResponse { Success = false, Message = "Authentication failed" };
+                }
+
+                // Only Admin can activate users
+                if (authUserRole != "Admin")
+                {
+                    return new ServiceResponse { Success = false, Message = "Unauthorized. Admin role required." };
+                }
+
+                // Activate user
+                bool success = userDAL.ActivateUser(userId);
+
+                if (success)
+                {
+                    // Log the action
+                    AuditHelper.LogAction(authUserId, "SOAP Activate User",
+                        $"Activated user via SOAP: User ID: {userId}", "");
+
+                    return new ServiceResponse { Success = true, Message = "User activated successfully" };
+                }
+                else
+                {
+                    return new ServiceResponse { Success = false, Message = "User not found or activation failed" };
                 }
             }
             catch (Exception ex)

@@ -181,5 +181,24 @@ namespace ReliableCDMS.DAL
                 }
             }
         }
+
+        /// <summary>
+        /// Activate user
+        /// </summary>
+        public bool ActivateUser(int userId)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"UPDATE Users SET IsActive = 1 WHERE UserId = @UserId";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
     }
 }
