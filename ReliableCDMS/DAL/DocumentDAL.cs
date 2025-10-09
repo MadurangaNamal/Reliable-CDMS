@@ -1,0 +1,262 @@
+﻿using ReliableCDMS.Models;
+using System;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace ReliableCDMS.DAL
+{
+    public class DocumentDAL
+    {
+        private string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+
+        /// <summary>
+        /// Get all documents
+        /// </summary>
+        public DataTable GetAllDocuments()
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"SELECT d.DocumentId, d.FileName, d.Category, d.UploadDate, 
+                                       d.CurrentVersion, d.FileSize, u.Username as UploadedByName
+                               FROM Documents d
+                               INNER JOIN Users u ON d.UploadedBy = u.UserId
+                               WHERE d.IsDeleted = 0
+                               ORDER BY d.UploadDate DESC";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    conn.Open();
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                }
+            }
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Search documents
+        /// </summary>
+        public DataTable SearchDocuments(string searchTerm)
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"SELECT d.DocumentId, d.FileName, d.Category, d.UploadDate, 
+                                       d.CurrentVersion, d.FileSize, u.Username as UploadedByName
+                               FROM Documents d
+                               INNER JOIN Users u ON d.UploadedBy = u.UserId
+                               WHERE d.IsDeleted = 0 
+                               AND (d.FileName LIKE @SearchTerm OR d.Category LIKE @SearchTerm)
+                               ORDER BY d.UploadDate DESC";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@SearchTerm", "%" + searchTerm + "%");
+
+                    conn.Open();
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                }
+            }
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Get document by ID
+        /// </summary>
+        public Document GetDocumentById(int documentId)
+        {
+            Document doc = null;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"SELECT * FROM Documents WHERE DocumentId = @DocumentId AND IsDeleted = 0";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            doc = new Document
+                            {
+                                DocumentId = (int)reader["DocumentId"],
+                                FileName = reader["FileName"].ToString(),
+                                Category = reader["Category"].ToString(),
+                                UploadedBy = (int)reader["UploadedBy"],
+                                UploadDate = (DateTime)reader["UploadDate"],
+                                CurrentVersion = (int)reader["CurrentVersion"],
+                                FilePath = reader["FilePath"].ToString(),
+                                FileSize = (long)reader["FileSize"]
+                            };
+                        }
+                    }
+                }
+            }
+
+            return doc;
+        }
+
+        /// <summary>
+        /// Create new document
+        /// </summary>
+        public int CreateDocument(string fileName, string category, int uploadedBy, string filePath, long fileSize)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"INSERT INTO Documents (FileName, Category, UploadedBy, UploadDate, CurrentVersion, FilePath, FileSize, IsDeleted) 
+                               VALUES (@FileName, @Category, @UploadedBy, GETDATE(), 1, @FilePath, @FileSize, 0);
+                               SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@FileName", fileName);
+                    cmd.Parameters.AddWithValue("@Category", category ?? "General");
+                    cmd.Parameters.AddWithValue("@UploadedBy", uploadedBy);
+                    cmd.Parameters.AddWithValue("@FilePath", filePath);
+                    cmd.Parameters.AddWithValue("@FileSize", fileSize);
+
+                    conn.Open();
+                    int documentId = (int)cmd.ExecuteScalar();
+
+                    // Also create first version entry
+                    CreateDocumentVersion(documentId, 1, filePath, uploadedBy, "Initial upload");
+
+                    return documentId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update document (new version)
+        /// </summary>
+        public bool UpdateDocument(int documentId, string filePath, int uploadedBy, string comments)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                // Get current version
+                string getVersionQuery = "SELECT CurrentVersion FROM Documents WHERE DocumentId = @DocumentId";
+                int currentVersion = 1;
+
+                using (SqlCommand cmd = new SqlCommand(getVersionQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
+                    conn.Open();
+                    object result = cmd.ExecuteScalar();
+                    if (result != null)
+                        currentVersion = (int)result;
+                }
+
+                int newVersion = currentVersion + 1;
+
+                // Update document
+                string updateQuery = @"UPDATE Documents 
+                                     SET CurrentVersion = @NewVersion, 
+                                         FilePath = @FilePath,
+                                         UploadDate = GETDATE()
+                                     WHERE DocumentId = @DocumentId";
+
+                using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
+                    cmd.Parameters.AddWithValue("@NewVersion", newVersion);
+                    cmd.Parameters.AddWithValue("@FilePath", filePath);
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Create version entry
+                CreateDocumentVersion(documentId, newVersion, filePath, uploadedBy, comments);
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Delete document (soft delete)
+        /// </summary>
+        public bool DeleteDocument(int documentId)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"UPDATE Documents SET IsDeleted = 1 WHERE DocumentId = @DocumentId";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
+
+                    conn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create document version entry
+        /// </summary>
+        private void CreateDocumentVersion(int documentId, int versionNumber, string filePath, int uploadedBy, string comments)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"INSERT INTO DocumentVersions (DocumentId, VersionNumber, FilePath, UploadedBy, UploadDate, Comments) 
+                               VALUES (@DocumentId, @VersionNumber, @FilePath, @UploadedBy, GETDATE(), @Comments)";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
+                    cmd.Parameters.AddWithValue("@VersionNumber", versionNumber);
+                    cmd.Parameters.AddWithValue("@FilePath", filePath);
+                    cmd.Parameters.AddWithValue("@UploadedBy", uploadedBy);
+                    cmd.Parameters.AddWithValue("@Comments", comments ?? "");
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get document versions
+        /// </summary>
+        public DataTable GetDocumentVersions(int documentId)
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"SELECT dv.VersionId, dv.VersionNumber, dv.UploadDate, 
+                                       dv.Comments, u.Username as UploadedByName
+                               FROM DocumentVersions dv
+                               INNER JOIN Users u ON dv.UploadedBy = u.UserId
+                               WHERE dv.DocumentId = @DocumentId
+                               ORDER BY dv.VersionNumber DESC";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
+
+                    conn.Open();
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                }
+            }
+
+            return dt;
+        }
+    }
+}
