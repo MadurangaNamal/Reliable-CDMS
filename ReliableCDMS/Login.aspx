@@ -58,13 +58,6 @@
             <div class="d-grid">
                 <asp:Button ID="btnLogin" runat="server" Text="Login" CssClass="btn btn-primary btn-lg" OnClick="btnLogin_Click" />
             </div>
-
-            <div class="mt-4 text-center">
-                <small class="text-muted">
-                    Demo Accounts:<br />
-                    admin/Pass@123 | manager1/Pass@123 | employee1/Pass@123
-                </small>
-            </div>
         </div>
     </form>
 </body>
