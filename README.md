@@ -10,30 +10,31 @@ ReliableCDMS is a secure document management system built with ASP.NET WebForms,
 - SQL Server Database
 - Bootstrap 5 for UI
 
-## Prerequisites
-- Visual Studio 2019/2022
-- SQL Server Express 2019+ or LocalDB
-- .NET Framework 4.8
-- IIS Express (included with Visual Studio)
+## Features
+### User Authentication
 
-## Installation Steps
+- Secure login with SHA256 password hashing
+- Role-based access control (Admin, Manager, Employee)
+- Session management
 
-### 1. Database Setup
-1. Open SQL Server Management Studio
-2. Connect to your SQL Server instance
-3. Execute the SQL script from `Database/CreateDatabase.sql`
-4. Verify tables are created
+### Security Features
 
-### 2. Configure Connection String
-1. Open `Web.config`
-2. Update the connection string:
-```xml
-   <add name="ReliableCDMSDB" 
-        connectionString="Server=YOUR_SERVER;Database=ReliableCDMSDB;Integrated Security=True;" 
-        providerName="System.Data.SqlClient"/>
-```
+- Password hashing (SHA256)
+- SQL injection prevention (parameterized queries)
+- Role-based authorization
+- Session management
+- Audit logging
+
+### Document Management
+
+- Upload documents with categorization
+- Download documents
+- Search functionality
+- Version control
+- Soft delete (documents marked as deleted)
 
 ## Assumptions 
+- File uploads limited to 50MB
 - Password Complexity: No enforced rules (e.g., minimum length, special characters).
 - Session Timeout: Defaults to 48 hours.
 - API Authentication: Basic Auth only.
@@ -49,3 +50,27 @@ ReliableCDMS is a secure document management system built with ASP.NET WebForms,
 - Database Security: Integrated auth; no encryption at rest.
 - Caching/Scalability: None implemented; single-server.
 - HTTPS/Logging: Not enforced; console-only logs.
+  
+## Prerequisites
+- Visual Studio 2019/2022
+- SQL Server Express 2019+ or LocalDB
+- .NET Framework 4.8
+- IIS Express (included with Visual Studio)
+
+## Installation Steps
+
+### 1. Database Setup
+1. Open SQL Server Management Studio
+2. Connect to your SQL Server instance
+3. Execute the SQL script from `CreateDatabase.sql`
+4. Verify tables are created
+
+### 2. Configure Connection String
+1. Open `Web.config`
+2. Update the connection string:
+```xml
+   <add name="ReliableCDMSDB" 
+        connectionString="Server=YOUR_SERVER;Database=ReliableCDMSDB;Integrated Security=True;" 
+        providerName="System.Data.SqlClient"/>
+```
+
