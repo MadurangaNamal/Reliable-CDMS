@@ -66,7 +66,7 @@
                         <div class="col-md-2">
                             <div class="mb-3">
                                 <label for="txtDepartment" class="form-label">Department</label>
-                                <asp:TextBox ID="txtDepartment" runat="server" CssClass="form-control" placeholder="Department"></asp:TextBox>
+                                <asp:TextBox ID="txtDepartment" runat="server" CssClass="form-control" placeholder="Enter name"></asp:TextBox>
                             </div>
                         </div>
                         <div class="col-md-2">

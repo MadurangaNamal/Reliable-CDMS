@@ -177,11 +177,12 @@ namespace ReliableCDMS.Controllers
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
                 string uploadsFolder = HttpContext.Current.Server.MapPath("~/Uploads/");
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                long fileSize = file.ContentLength;
                 file.SaveAs(filePath);
 
                 // Update document
                 string relativeFilePath = "~/Uploads/" + uniqueFileName;
-                bool success = documentDAL.UpdateDocument(id, relativeFilePath, userId, comments);
+                bool success = documentDAL.UpdateDocument(id, relativeFilePath, userId, comments, fileSize);
 
                 if (success)
                 {

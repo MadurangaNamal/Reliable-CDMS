@@ -111,6 +111,46 @@ namespace ReliableCDMS.DAL
         }
 
         /// <summary>
+        /// Get document by filename
+        /// </summary>
+        public Document GetDocumentByFileName(string fileName)
+        {
+            Document doc = null;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"SELECT * FROM Documents 
+                        WHERE FileName = @FileName AND IsDeleted = 0";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@FileName", fileName);
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            doc = new Document
+                            {
+                                DocumentId = (int)reader["DocumentId"],
+                                FileName = reader["FileName"].ToString(),
+                                Category = reader["Category"].ToString(),
+                                UploadedBy = (int)reader["UploadedBy"],
+                                UploadDate = (DateTime)reader["UploadDate"],
+                                CurrentVersion = (int)reader["CurrentVersion"],
+                                FilePath = reader["FilePath"].ToString(),
+                                FileSize = reader["FileSize"] != DBNull.Value ? (long)reader["FileSize"] : 0
+                            };
+                        }
+                    }
+                }
+            }
+
+            return doc;
+        }
+
+        /// <summary>
         /// Create new document
         /// </summary>
         public int CreateDocument(string fileName, string category, int uploadedBy, string filePath, long fileSize)
@@ -140,13 +180,60 @@ namespace ReliableCDMS.DAL
             }
         }
 
+        ///// <summary>
+        ///// Update document (new version)
+        ///// </summary>
+        //public bool UpdateDocument(int documentId, string filePath, int uploadedBy, string comments)
+        //{
+        //    using (SqlConnection conn = new SqlConnection(connString))
+        //    {
+        //        // Get current version
+        //        string getVersionQuery = "SELECT CurrentVersion FROM Documents WHERE DocumentId = @DocumentId";
+        //        int currentVersion = 1;
+
+        //        using (SqlCommand cmd = new SqlCommand(getVersionQuery, conn))
+        //        {
+        //            cmd.Parameters.AddWithValue("@DocumentId", documentId);
+        //            conn.Open();
+        //            object result = cmd.ExecuteScalar();
+        //            if (result != null)
+        //                currentVersion = (int)result;
+        //        }
+
+        //        int newVersion = currentVersion + 1;
+
+        //        // Update document
+        //        string updateQuery = @"UPDATE Documents 
+        //                             SET CurrentVersion = @NewVersion, 
+        //                                 FilePath = @FilePath,
+        //                                 UploadDate = GETDATE()
+        //                             WHERE DocumentId = @DocumentId";
+
+        //        using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+        //        {
+        //            cmd.Parameters.AddWithValue("@DocumentId", documentId);
+        //            cmd.Parameters.AddWithValue("@NewVersion", newVersion);
+        //            cmd.Parameters.AddWithValue("@FilePath", filePath);
+
+        //            cmd.ExecuteNonQuery();
+        //        }
+
+        //        // Create version entry
+        //        CreateDocumentVersion(documentId, newVersion, filePath, uploadedBy, comments);
+
+        //        return true;
+        //    }
+        //}
+
         /// <summary>
         /// Update document (new version)
         /// </summary>
-        public bool UpdateDocument(int documentId, string filePath, int uploadedBy, string comments)
+        public bool UpdateDocument(int documentId, string filePath, int uploadedBy, string comments, long fileSize)
         {
             using (SqlConnection conn = new SqlConnection(connString))
             {
+                conn.Open();
+
                 // Get current version
                 string getVersionQuery = "SELECT CurrentVersion FROM Documents WHERE DocumentId = @DocumentId";
                 int currentVersion = 1;
@@ -154,7 +241,6 @@ namespace ReliableCDMS.DAL
                 using (SqlCommand cmd = new SqlCommand(getVersionQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                    conn.Open();
                     object result = cmd.ExecuteScalar();
                     if (result != null)
                         currentVersion = (int)result;
@@ -164,16 +250,18 @@ namespace ReliableCDMS.DAL
 
                 // Update document
                 string updateQuery = @"UPDATE Documents 
-                                     SET CurrentVersion = @NewVersion, 
-                                         FilePath = @FilePath,
-                                         UploadDate = GETDATE()
-                                     WHERE DocumentId = @DocumentId";
+                             SET CurrentVersion = @NewVersion, 
+                                 FilePath = @FilePath,
+                                 FileSize = @FileSize,
+                                 UploadDate = GETDATE()
+                             WHERE DocumentId = @DocumentId";
 
                 using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@DocumentId", documentId);
                     cmd.Parameters.AddWithValue("@NewVersion", newVersion);
                     cmd.Parameters.AddWithValue("@FilePath", filePath);
+                    cmd.Parameters.AddWithValue("@FileSize", fileSize);
 
                     cmd.ExecuteNonQuery();
                 }

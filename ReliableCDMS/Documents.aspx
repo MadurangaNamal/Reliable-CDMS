@@ -55,7 +55,14 @@
                                 </asp:DropDownList>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="txtComments" class="form-label">Comments (Optional)</label>
+                                <asp:TextBox ID="txtComments" runat="server" CssClass="form-control" 
+                                    placeholder="Version comments..."></asp:TextBox>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
                             <label class="form-label">&nbsp;</label>
                             <asp:Button ID="btnUpload" runat="server" Text="Upload" 
                                 CssClass="btn btn-primary w-100" 

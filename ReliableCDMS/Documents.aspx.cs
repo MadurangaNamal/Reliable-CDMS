@@ -50,6 +50,7 @@ namespace ReliableCDMS
                 // Get file info
                 string fileName = Path.GetFileName(fileUpload.FileName);
                 string category = ddlCategory.SelectedValue;
+                string comments = txtComments.Text.Trim();
                 long fileSize = fileUpload.PostedFile.ContentLength;
 
                 // Validate file size (max 50MB)
@@ -59,7 +60,10 @@ namespace ReliableCDMS
                     return;
                 }
 
-                // Create unique filename
+                // Check if document with same filename already exists
+                var existingDocument = documentDAL.GetDocumentByFileName(fileName);
+
+                // Create unique filename for storage
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
                 string uploadsFolder = Server.MapPath("~/Uploads/");
 
@@ -74,22 +78,69 @@ namespace ReliableCDMS
                 // Save file
                 fileUpload.SaveAs(filePath);
 
-                // Save to database
                 int userId = Convert.ToInt32(Session["UserId"]);
                 string relativeFilePath = "~/Uploads/" + uniqueFileName;
 
-                int documentId = documentDAL.CreateDocument(fileName, category, userId, relativeFilePath, fileSize);
+                if (existingDocument != null)
+                {
+                    // UPDATE: Document exists, create new version
+                    if (string.IsNullOrEmpty(comments))
+                    {
+                        comments = "Updated version";
+                    }
 
-                // Log action
-                AuditHelper.LogAction(userId, "Upload Document",
-                    $"Uploaded document: {fileName}, ID: {documentId}",
-                    Request.UserHostAddress);
+                    bool success = documentDAL.UpdateDocument(
+                        existingDocument.DocumentId,
+                        relativeFilePath,
+                        userId,
+                        comments,
+                        fileSize
+                    );
 
-                ShowSuccess($"Document '{fileName}' uploaded successfully!");
+                    if (success)
+                    {
+                        // Log action
+                        AuditHelper.LogAction(userId, "Update Document Version",
+                            $"Updated document: {fileName} to version {existingDocument.CurrentVersion + 1}",
+                            Request.UserHostAddress);
+
+                        ShowSuccess($"Document '{fileName}' updated to version {existingDocument.CurrentVersion + 1}!");
+                    }
+                    else
+                    {
+                        ShowError("Failed to update document version.");
+                    }
+                }
+                else
+                {
+                    // CREATE: New document, create version 1
+                    if (string.IsNullOrEmpty(comments))
+                    {
+                        comments = "Initial upload";
+                    }
+
+                    int documentId = documentDAL.CreateDocument(fileName, category, userId, relativeFilePath, fileSize);
+
+                    if (documentId > 0)
+                    {
+                        // Log action
+                        AuditHelper.LogAction(userId, "Upload Document",
+                            $"Uploaded new document: {fileName}, ID: {documentId}",
+                            Request.UserHostAddress);
+
+                        ShowSuccess($"Document '{fileName}' uploaded successfully as version 1!");
+                    }
+                    else
+                    {
+                        ShowError("Failed to upload document.");
+                    }
+                }
+
                 LoadDocuments();
 
                 // Clear form
                 ddlCategory.SelectedIndex = 0;
+                txtComments.Text = "";
             }
             catch (Exception ex)
             {
