@@ -1,1 +1,4 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="ReliableCDMS.Service1" CodeBehind="UserManagementService.svc.cs" %>
+﻿<%@ ServiceHost Language="C#" Debug="true"
+    Service="ReliableCDMS.UserManagementService"
+    CodeBehind="UserManagementService.svc.cs" %>
+
