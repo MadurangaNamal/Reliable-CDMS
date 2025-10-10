@@ -6,7 +6,7 @@ using System.Web.UI;
 
 namespace ReliableCDMS
 {
-    public partial class _Default : Page
+    public partial class Default : Page
     {
         private string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
 
