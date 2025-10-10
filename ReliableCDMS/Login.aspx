@@ -27,7 +27,7 @@
     <form id="form1" runat="server">
         <div class="login-card">
             <h2 class="text-center mb-4">ReliableCDMS</h2>
-            <h5 class="text-center text-muted mb-4">Login to Your Account</h5>
+            <h6 class="text-center text-muted mb-4">Login to Your Account</h6>
             
             <asp:Panel ID="pnlError" runat="server" CssClass="alert alert-danger" Visible="false">
                 <asp:Label ID="lblError" runat="server"></asp:Label>
