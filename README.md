@@ -9,21 +9,17 @@ ReliableCDMS is a secure document management system built with ASP.NET WebForms,
 - SOAP API (WCF Service)
 - SQL Server Database
 - Bootstrap 5 for UI
+- Font Awesome for icons
 
 ## Features
-### User Authentication
-
-- Secure login with SHA256 password hashing
-- Role-based access control (Admin, Manager, Employee)
-- Session management
 
 ### Security Features
 
-- Password hashing (SHA256)
+- Secure login with SHA256 password hashing
 - SQL injection prevention (parameterized queries)
-- Role-based authorization
-- Session management
-- Audit logging
+- Role-based authorization (Admin, Manager, Employee)
+- Audit logging (for all critical operations)
+- Session-based authentication with Forms Authentication
 
 ### Document Management
 
