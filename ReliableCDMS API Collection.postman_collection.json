@@ -1,0 +1,479 @@
+{
+	"info": {
+		"_postman_id": "51220d02-0fae-4fa9-b69e-ee6ca27ef0c6",
+		"name": "ReliableCDMS API Collection",
+		"description": "Complete API testing collection for ReliableCDMS - Corporate Document Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8474573"
+	},
+	"item": [
+		{
+			"name": "REST API - Documents",
+			"item": [
+				{
+					"name": "Get All Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents"
+							]
+						},
+						"description": "Retrieve all documents from the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents",
+								"{{documentId}}"
+							]
+						},
+						"description": "Retrieve a specific document by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/search?searchTerm={{searchTerm}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents",
+								"search"
+							],
+							"query": [
+								{
+									"key": "searchTerm",
+									"value": "{{searchTerm}}"
+								}
+							]
+						},
+						"description": "Search documents by filename or category"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "Select a file to upload",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "category",
+									"value": "IT",
+									"description": "Document category (General, HR, Finance, IT, Sales, Marketing, Legal)",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents"
+							]
+						},
+						"description": "Upload a new document to the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Document (New Version)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "Select a file for new version",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "comments",
+									"value": "Updated version with new changes",
+									"description": "Version comments",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents",
+								"{{documentId}}"
+							]
+						},
+						"description": "Update an existing document with a new version"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/{{documentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents",
+								"{{documentId}}"
+							]
+						},
+						"description": "Delete a document (soft delete)"
+					},
+					"response": []
+				}
+			],
+			"description": "REST API endpoints for document management operations",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "admin",
+						"type": "string"
+					},
+					{
+						"key": "password",
+						"value": "Pass@123",
+						"type": "string"
+					}
+				]
+			}
+		},
+		{
+			"name": "SOAP API - User Management",
+			"item": [
+				{
+					"name": "CreateUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/IUserManagementService/CreateUser",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\r\n   <soap:Header/>\r\n   <soap:Body>\r\n      <tem:CreateUser>\r\n         <tem:username>testuser</tem:username>\r\n         <tem:password>Pass@123</tem:password>\r\n         <tem:role>Employee</tem:role>\r\n         <tem:department>IT</tem:department>\r\n         <tem:authUsername>admin</tem:authUsername>\r\n         <tem:authPassword>Pass@123</tem:authPassword>\r\n      </tem:CreateUser>\r\n   </soap:Body>\r\n</soap:Envelope>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							]
+						},
+						"description": "Create a new user via SOAP API"
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/IUserManagementService/UpdateUser",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\r\n   <soap:Header/>\r\n   <soap:Body>\r\n      <tem:UpdateUser>\r\n         <tem:userId>5</tem:userId>\r\n         <tem:department>Sales</tem:department>\r\n         <tem:role>Manager</tem:role>\r\n         <tem:authUsername>admin</tem:authUsername>\r\n         <tem:authPassword>Pass@123</tem:authPassword>\r\n      </tem:UpdateUser>\r\n   </soap:Body>\r\n</soap:Envelope>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							]
+						},
+						"description": "Update an existing user via SOAP API"
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/IUserManagementService/DeleteUser",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\r\n   <soap:Header/>\r\n   <soap:Body>\r\n      <tem:DeleteUser>\r\n         <tem:userId>7</tem:userId>\r\n         <tem:authUsername>admin</tem:authUsername>\r\n         <tem:authPassword>Pass@123</tem:authPassword>\r\n      </tem:DeleteUser>\r\n   </soap:Body>\r\n</soap:Envelope>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							]
+						},
+						"description": "Delete a user via SOAP API"
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/IUserManagementService/GetUser",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\r\n   <soap:Header/>\r\n   <soap:Body>\r\n      <tem:GetUser>\r\n         <tem:userId>4</tem:userId>\r\n         <tem:authUsername>admin</tem:authUsername>\r\n         <tem:authPassword>Pass@123</tem:authPassword>\r\n      </tem:GetUser>\r\n   </soap:Body>\r\n</soap:Envelope>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							]
+						},
+						"description": "Get user details by ID via SOAP API"
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllUsers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/IUserManagementService/GetAllUsers",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\r\n   <soap:Header/>\r\n   <soap:Body>\r\n      <tem:GetAllUsers>\r\n         <tem:authUsername>admin</tem:authUsername>\r\n         <tem:authPassword>Pass@123</tem:authPassword>\r\n      </tem:GetAllUsers>\r\n   </soap:Body>\r\n</soap:Envelope>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							]
+						},
+						"description": "Get all users via SOAP API"
+					},
+					"response": []
+				},
+				{
+					"name": "Get WSDL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc?wsdl",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							],
+							"query": [
+								{
+									"key": "wsdl",
+									"value": null
+								}
+							]
+						},
+						"description": "Retrieve WSDL definition for the SOAP service"
+					},
+					"response": []
+				}
+			],
+			"description": "SOAP API endpoints for user management operations"
+		},
+		{
+			"name": "Health Checks",
+			"item": [
+				{
+					"name": "Test REST API Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						},
+						"description": "Quick health check for REST API"
+					},
+					"response": []
+				},
+				{
+					"name": "Test SOAP Service Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlSOAP}}/UserManagementService.svc",
+							"host": [
+								"{{baseUrlSOAP}}"
+							],
+							"path": [
+								"UserManagementService.svc"
+							]
+						},
+						"description": "Quick health check for SOAP service"
+					},
+					"response": []
+				}
+			],
+			"description": "Health check endpoints to verify API availability"
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "Pass@123",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:PORT_NUMBER",
+			"type": "string"
+		},
+		{
+			"key": "documentId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "searchTerm",
+			"value": "test",
+			"type": "string"
+		}
+	]
+}
