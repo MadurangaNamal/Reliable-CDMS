@@ -8,7 +8,7 @@ namespace ReliableCDMS.DAL
 {
     public class DocumentDAL
     {
-        private string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+        private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
 
         /// <summary>
         /// Get all documents

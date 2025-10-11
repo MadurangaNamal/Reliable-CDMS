@@ -8,7 +8,7 @@ namespace ReliableCDMS.DAL
 {
     public class UserDAL
     {
-        private string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+        private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
 
         /// <summary>
         /// Authenticate user

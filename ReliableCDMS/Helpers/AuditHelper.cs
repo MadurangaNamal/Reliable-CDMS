@@ -6,6 +6,9 @@ namespace ReliableCDMS.Helpers
 {
     public class AuditHelper
     {
+        /// <summary>
+        /// Log user action to AuditLog table
+        /// </summary>
         public static void LogAction(int userId, string action, string details, string ipAddress = "")
         {
             try
@@ -30,7 +33,7 @@ namespace ReliableCDMS.Helpers
             }
             catch (Exception ex)
             {
-                // Log error to file or ignore for demo
+                // Log error to file
                 System.Diagnostics.Debug.WriteLine("Audit logging failed: " + ex.Message);
             }
         }
