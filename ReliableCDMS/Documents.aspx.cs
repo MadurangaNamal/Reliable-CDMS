@@ -8,7 +8,7 @@ namespace ReliableCDMS
 {
     public partial class Documents : System.Web.UI.Page
     {
-        private DocumentDAL documentDAL = new DocumentDAL();
+        private readonly DocumentDAL documentDAL = new DocumentDAL();
 
         protected void Page_Load(object sender, EventArgs e)
         {

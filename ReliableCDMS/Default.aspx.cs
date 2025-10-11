@@ -8,7 +8,7 @@ namespace ReliableCDMS
 {
     public partial class Default : Page
     {
-        private string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+        private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
