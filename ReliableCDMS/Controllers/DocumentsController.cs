@@ -16,6 +16,8 @@ namespace ReliableCDMS.Controllers
     {
         private DocumentDAL documentDAL = new DocumentDAL();
 
+        #region API Endpoints
+
         /// <summary>
         /// GET: api/documents - Get all documents
         /// </summary>
@@ -246,7 +248,7 @@ namespace ReliableCDMS.Controllers
         /// </summary>
         [HttpGet]
         [Route("search")]
-        public IHttpActionResult SearchDocuments([FromUri] string term)
+        public IHttpActionResult SearchDocuments([FromUri] string searchTerm)
         {
             try
             {
@@ -255,12 +257,12 @@ namespace ReliableCDMS.Controllers
                     return Unauthorized();
                 }
 
-                if (string.IsNullOrEmpty(term))
+                if (string.IsNullOrEmpty(searchTerm))
                 {
                     return BadRequest("Search term is required");
                 }
 
-                var documents = documentDAL.SearchDocuments(term);
+                var documents = documentDAL.SearchDocuments(searchTerm);
 
                 // Convert DataTable to list
                 var docList = new List<object>();
@@ -285,6 +287,8 @@ namespace ReliableCDMS.Controllers
             }
         }
 
+        #endregion
+
         #region Helper Methods
 
         /// <summary>
@@ -292,48 +296,54 @@ namespace ReliableCDMS.Controllers
         /// </summary>
         private bool IsAuthenticated()
         {
-            // Check session first
-            if (HttpContext.Current.Session["UserId"] != null)
+            try
             {
-                return true;
-            }
+                var request = HttpContext.Current.Request;
 
-            // Check for Basic Authentication header
-            var authHeader = HttpContext.Current.Request.Headers["Authorization"];
+                // Check for Basic Authentication header
+                var authHeader = request.Headers["Authorization"];
 
-            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Basic "))
-            {
-                try
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
                 {
-                    string encodedCredentials = authHeader.Substring("Basic ".Length).Trim();
-                    string credentials = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
-                    string[] parts = credentials.Split(':');
-
-                    if (parts.Length == 2)
+                    try
                     {
-                        string username = parts[0];
-                        string password = parts[1];
-                        string passwordHash = SecurityHelper.HashPassword(password);
+                        string encodedCredentials = authHeader.Substring("Basic ".Length).Trim();
+                        string credentials = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
+                        string[] parts = credentials.Split(':');
 
-                        UserDAL userDAL = new UserDAL();
-                        var user = userDAL.AuthenticateUser(username, passwordHash);
-
-                        if (user != null)
+                        if (parts.Length == 2)
                         {
-                            // Store in session for this request
-                            HttpContext.Current.Session["UserId"] = user.UserId;
-                            HttpContext.Current.Session["Username"] = user.Username;
-                            return true;
+                            string username = parts[0];
+                            string password = parts[1];
+                            string passwordHash = SecurityHelper.HashPassword(password);
+
+                            UserDAL userDAL = new UserDAL();
+                            var user = userDAL.AuthenticateUser(username, passwordHash);
+
+                            if (user != null)
+                            {
+                                // Store user info in Items for this request only (not session)
+                                HttpContext.Current.Items["AuthUserId"] = user.UserId;
+                                HttpContext.Current.Items["AuthUsername"] = user.Username;
+                                HttpContext.Current.Items["AuthUserRole"] = user.Role;
+                                return true;
+                            }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Authentication error: " + ex.Message);
+                        return false;
+                    }
                 }
-                catch
-                {
-                    return false;
-                }
-            }
 
-            return false;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("IsAuthenticated error: " + ex.Message);
+                return false;
+            }
         }
 
         /// <summary>
@@ -341,11 +351,26 @@ namespace ReliableCDMS.Controllers
         /// </summary>
         private int GetAuthenticatedUserId()
         {
-            if (HttpContext.Current.Session["UserId"] != null)
+            try
             {
-                return Convert.ToInt32(HttpContext.Current.Session["UserId"]);
+                // Get from Items (set during IsAuthenticated)
+                if (HttpContext.Current.Items["AuthUserId"] != null)
+                {
+                    return Convert.ToInt32(HttpContext.Current.Items["AuthUserId"]);
+                }
+
+                // Fallback: re-authenticate if needed
+                if (IsAuthenticated() && HttpContext.Current.Items["AuthUserId"] != null)
+                {
+                    return Convert.ToInt32(HttpContext.Current.Items["AuthUserId"]);
+                }
+
+                return 0;
             }
-            return 1; // Default to admin for testing
+            catch
+            {
+                return 0;
+            }
         }
 
         #endregion
