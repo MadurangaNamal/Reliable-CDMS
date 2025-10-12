@@ -31,7 +31,7 @@ namespace ReliableCDMS
                 UserDAL userDAL = new UserDAL();
                 User user = userDAL.AuthenticateUser(username, passwordHash);
 
-                if (user != null)
+                if (user != null && SecurityHelper.VerifyPassword(password, user.PasswordHash))
                 {
                     // Store user info in session
                     Session["UserId"] = user.UserId;

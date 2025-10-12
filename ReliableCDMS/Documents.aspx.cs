@@ -113,7 +113,7 @@ namespace ReliableCDMS
                 }
                 else
                 {
-                    // CREATE: New document, create version 1
+                    // CREATE: New document, version 1
                     if (string.IsNullOrEmpty(comments))
                     {
                         comments = "Initial upload";
@@ -201,7 +201,7 @@ namespace ReliableCDMS
 
                 if (document != null)
                 {
-                    string filePath = Server.MapPath(document.FilePath);
+                    string filePath = Server.MapPath(document.FilePath); // Get physical file path
 
                     if (File.Exists(filePath))
                     {

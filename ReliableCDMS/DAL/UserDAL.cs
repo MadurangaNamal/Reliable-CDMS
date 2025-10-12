@@ -6,6 +6,9 @@ using System.Data.SqlClient;
 
 namespace ReliableCDMS.DAL
 {
+    /// <summary>
+    /// Data Access Layer for User operations
+    /// </summary>
     public class UserDAL
     {
         private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;

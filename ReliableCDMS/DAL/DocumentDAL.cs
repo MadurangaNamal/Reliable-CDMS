@@ -6,6 +6,9 @@ using System.Data.SqlClient;
 
 namespace ReliableCDMS.DAL
 {
+    /// <summary>
+    /// Data Access Layer for Documents and Document Versions
+    /// </summary>
     public class DocumentDAL
     {
         private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;

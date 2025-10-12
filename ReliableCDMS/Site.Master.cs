@@ -29,10 +29,10 @@ namespace ReliableCDMS
             Session.Clear();
             Session.Abandon();
 
-            // Sign out
+            // Sign out 
             FormsAuthentication.SignOut();
 
-            // Redirect to login
+            // Redirect to login page
             Response.Redirect("~/Login.aspx");
         }
     }

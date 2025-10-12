@@ -320,12 +320,13 @@ namespace ReliableCDMS.Controllers
                             UserDAL userDAL = new UserDAL();
                             var user = userDAL.AuthenticateUser(username, passwordHash);
 
-                            if (user != null)
+                            if (user != null && SecurityHelper.VerifyPassword(password, user.PasswordHash))
                             {
                                 // Store user info in Items for this request only (not session)
                                 HttpContext.Current.Items["AuthUserId"] = user.UserId;
                                 HttpContext.Current.Items["AuthUsername"] = user.Username;
                                 HttpContext.Current.Items["AuthUserRole"] = user.Role;
+
                                 return true;
                             }
                         }
