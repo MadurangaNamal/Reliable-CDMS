@@ -246,8 +246,8 @@ namespace ReliableCDMS
                 var document = documentDAL.GetDocumentById(documentId);
                 int currentUserId = Convert.ToInt32(Session["UserId"]);
 
-                // Only allow admin or the uploader to delete
-                if (userRole != "Admin" && document.UploadedBy != currentUserId)
+                // Only allow admin, manager or the uploader to delete
+                if (userRole == "Employee" && document.UploadedBy != currentUserId)
                 {
                     ShowError("You don't have permission to delete this document.");
                     return;
