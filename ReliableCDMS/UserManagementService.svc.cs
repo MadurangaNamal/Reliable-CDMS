@@ -1,12 +1,13 @@
 ﻿using ReliableCDMS.DAL;
 using ReliableCDMS.Helpers;
 using System;
+using System.Security.Authentication;
 
 namespace ReliableCDMS
 {
     public class UserManagementService : IUserManagementService
     {
-        private UserDAL userDAL = new UserDAL();
+        private readonly UserDAL userDAL = new UserDAL();
 
         /// <summary>
         /// Authenticate user for SOAP service
@@ -28,9 +29,9 @@ namespace ReliableCDMS
                     return true;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Authentication failed
+                throw new AuthenticationException("Authentication error: " + ex.Message);
             }
 
             return false;
@@ -46,6 +47,7 @@ namespace ReliableCDMS
                 // Authenticate
                 int authUserId;
                 string authUserRole;
+
                 if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
@@ -92,9 +94,9 @@ namespace ReliableCDMS
         {
             try
             {
-                // Authenticate
                 int authUserId;
                 string authUserRole;
+
                 if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
@@ -135,7 +137,6 @@ namespace ReliableCDMS
         {
             try
             {
-                // Authenticate
                 int authUserId;
                 string authUserRole;
 
@@ -185,7 +186,6 @@ namespace ReliableCDMS
         {
             try
             {
-                // Authenticate service user
                 int authUserId;
                 string authUserRole;
 
@@ -229,9 +229,9 @@ namespace ReliableCDMS
         {
             try
             {
-                // Authenticate
                 int authUserId;
                 string authUserRole;
+
                 if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
                 {
                     return null;
@@ -267,9 +267,9 @@ namespace ReliableCDMS
         {
             try
             {
-                // Authenticate
                 int authUserId;
                 string authUserRole;
+
                 if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
                 {
                     return new UserInfo[0];

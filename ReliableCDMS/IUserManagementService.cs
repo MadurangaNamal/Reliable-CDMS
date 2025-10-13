@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace ReliableCDMS
 {
@@ -27,38 +28,38 @@ namespace ReliableCDMS
     /// <summary>
     /// Service response object
     /// </summary>
-    [System.Runtime.Serialization.DataContract]
+    [DataContract]
     public class ServiceResponse
     {
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public bool Success { get; set; }
 
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public string Message { get; set; }
 
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public int RecordId { get; set; }
     }
 
     /// <summary>
     /// User information object
     /// </summary>
-    [System.Runtime.Serialization.DataContract]
+    [DataContract]
     public class UserInfo
     {
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public int UserId { get; set; }
 
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public string Username { get; set; }
 
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public string Role { get; set; }
 
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public string Department { get; set; }
 
-        [System.Runtime.Serialization.DataMember]
+        [DataMember]
         public bool IsActive { get; set; }
     }
 }
