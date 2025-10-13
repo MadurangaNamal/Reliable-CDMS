@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Diagnostics;
 
 namespace ReliableCDMS.Helpers
 {
@@ -34,7 +35,7 @@ namespace ReliableCDMS.Helpers
             catch (Exception ex)
             {
                 // Log error to file
-                System.Diagnostics.Debug.WriteLine("Audit logging failed: " + ex.Message);
+                Debug.WriteLine("Audit logging failed: " + ex.Message);
             }
         }
     }

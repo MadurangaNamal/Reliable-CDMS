@@ -15,10 +15,12 @@ namespace ReliableCDMS.Helpers
             {
                 byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 StringBuilder builder = new StringBuilder();
+
                 foreach (byte b in bytes)
                 {
                     builder.Append(b.ToString("X2"));
                 }
+
                 return builder.ToString();
             }
         }

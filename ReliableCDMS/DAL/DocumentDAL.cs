@@ -13,6 +13,8 @@ namespace ReliableCDMS.DAL
     {
         private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
 
+        #region Document Operations
+
         /// <summary>
         /// Get all documents
         /// </summary>
@@ -295,6 +297,10 @@ namespace ReliableCDMS.DAL
             }
         }
 
+        #endregion
+
+        #region Document Version Operations
+
         /// <summary>
         /// Create document version entry
         /// </summary>
@@ -349,5 +355,7 @@ namespace ReliableCDMS.DAL
 
             return dt;
         }
+
+        #endregion
     }
 }

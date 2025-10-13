@@ -14,7 +14,7 @@ namespace ReliableCDMS.Controllers
     [RoutePrefix("api/documents")]
     public class DocumentsApiController : ApiController
     {
-        private DocumentDAL documentDAL = new DocumentDAL();
+        private readonly DocumentDAL documentDAL = new DocumentDAL();
 
         #region API Endpoints
 
@@ -244,7 +244,7 @@ namespace ReliableCDMS.Controllers
         }
 
         /// <summary>
-        /// GET: api/documents/search?term=xyz - Search documents
+        /// GET: api/documents/search?searchTerm=xyz - Search documents
         /// </summary>
         [HttpGet]
         [Route("search")]
