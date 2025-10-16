@@ -69,3 +69,13 @@ BEGIN
     WHERE LogDate < DATEADD(DAY, -14, GETDATE());
 END;
 GO
+
+-- Add unique constraint on FileName (only for active documents)
+CREATE UNIQUE NONCLUSTERED INDEX IX_Documents_FileName_Active
+ON Documents (FileName)
+WHERE IsDeleted = 0;
+GO
+
+-- Verify
+SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID('Documents') AND name = 'IX_Documents_FileName_Active';
+GO

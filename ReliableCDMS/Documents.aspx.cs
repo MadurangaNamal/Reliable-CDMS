@@ -1,7 +1,9 @@
 ﻿using ReliableCDMS.DAL;
 using ReliableCDMS.Helpers;
 using System;
+using System.Data.SqlClient;
 using System.IO;
+using System.Threading;
 using System.Web.UI.WebControls;
 
 namespace ReliableCDMS
@@ -60,85 +62,87 @@ namespace ReliableCDMS
                     return;
                 }
 
-                // Check if document with same filename already exists
-                var existingDocument = documentDAL.GetDocumentByFileName(fileName);
-
-                // Create unique filename for storage
+                // Create unique filename
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
                 string uploadsFolder = Server.MapPath("~/Uploads/");
 
-                // Create uploads folder if it doesn't exist
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                // Save file
-                fileUpload.SaveAs(filePath);
+                fileUpload.SaveAs(filePath); // Save file
 
                 int userId = Convert.ToInt32(Session["UserId"]);
                 string relativeFilePath = "~/Uploads/" + uniqueFileName;
 
-                if (existingDocument != null)
+                int documentId = 0;
+                int retryCount = 0;
+                const int maxRetries = 3;
+
+                while (retryCount < maxRetries)
                 {
-                    // UPDATE: Document exists, create new version
-                    if (string.IsNullOrEmpty(comments))
+                    try
                     {
-                        comments = "Updated version";
+                        // Try to create as new document first
+                        var existingDoc = documentDAL.GetDocumentByFileName(fileName);
+
+                        if (existingDoc == null)
+                        {
+                            // No document exists, create new
+                            documentId = documentDAL.CreateDocument(fileName, category, userId, relativeFilePath, fileSize);
+
+                            AuditHelper.LogAction(userId, "Upload Document",
+                                $"Uploaded new document: {fileName}, ID: {documentId}",
+                                Request.UserHostAddress);
+
+                            ShowSuccess($"Document '{fileName}' uploaded successfully as version 1!");
+                            break;
+                        }
+                        else
+                        {
+                            // Document exists, update version
+                            if (string.IsNullOrEmpty(comments))
+                            {
+                                comments = "Updated version";
+                            }
+
+                            documentDAL.UpdateDocument(existingDoc.DocumentId, relativeFilePath, userId, comments, fileSize);
+                            documentId = existingDoc.DocumentId;
+
+                            AuditHelper.LogAction(userId, "Update Document Version",
+                                $"Updated document: {fileName} to version {existingDoc.CurrentVersion + 1}",
+                                Request.UserHostAddress);
+
+                            ShowSuccess($"Document '{fileName}' updated to version {existingDoc.CurrentVersion + 1}!");
+                            break;
+                        }
                     }
-
-                    bool success = documentDAL.UpdateDocument(
-                        existingDocument.DocumentId,
-                        relativeFilePath,
-                        userId,
-                        comments,
-                        fileSize
-                    );
-
-                    if (success)
+                    catch (SqlException ex) when (ex.Number == 2601 || ex.Number == 2627)
                     {
-                        // Log action
-                        AuditHelper.LogAction(userId, "Update Document Version",
-                            $"Updated document: {fileName} to version {existingDocument.CurrentVersion + 1}",
-                            Request.UserHostAddress);
+                        // Unique constraint violation - another user created the document
+                        retryCount++;
 
-                        ShowSuccess($"Document '{fileName}' updated to version {existingDocument.CurrentVersion + 1}!");
-                    }
-                    else
-                    {
-                        ShowError("Failed to update document version.");
-                    }
-                }
-                else
-                {
-                    // CREATE: New document, version 1
-                    if (string.IsNullOrEmpty(comments))
-                    {
-                        comments = "Initial upload";
-                    }
+                        if (retryCount >= maxRetries)
+                        {
+                            ShowError("Unable to upload document due to concurrent access. Please try again.");
 
-                    int documentId = documentDAL.CreateDocument(fileName, category, userId, relativeFilePath, fileSize);
+                            // Clean up orphaned file
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath);
+                            }
+                            return;
+                        }
 
-                    if (documentId > 0)
-                    {
-                        // Log action
-                        AuditHelper.LogAction(userId, "Upload Document",
-                            $"Uploaded new document: {fileName}, ID: {documentId}",
-                            Request.UserHostAddress);
-
-                        ShowSuccess($"Document '{fileName}' uploaded successfully as version 1!");
-                    }
-                    else
-                    {
-                        ShowError("Failed to upload document.");
+                        Thread.Sleep(100 * retryCount); // Wait and retry
                     }
                 }
 
                 LoadDocuments();
 
-                // Clear form
+                // Clear the form
                 ddlCategory.SelectedIndex = 0;
                 txtComments.Text = "";
             }

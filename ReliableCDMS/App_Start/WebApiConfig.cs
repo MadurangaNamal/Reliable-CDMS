@@ -9,6 +9,7 @@ namespace ReliableCDMS
             // Web API routes
             config.MapHttpAttributeRoutes();
 
+            // Default route
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
