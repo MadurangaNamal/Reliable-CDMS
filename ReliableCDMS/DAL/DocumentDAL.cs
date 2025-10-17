@@ -99,13 +99,13 @@ namespace ReliableCDMS.DAL
                             doc = new Document
                             {
                                 DocumentId = (int)reader["DocumentId"],
-                                FileName = reader["FileName"].ToString(),
-                                Category = reader["Category"].ToString(),
+                                FileName = reader["FileName"]?.ToString() ?? "Unknown",
+                                Category = reader["Category"]?.ToString() ?? "General",
                                 UploadedBy = (int)reader["UploadedBy"],
                                 UploadDate = (DateTime)reader["UploadDate"],
                                 CurrentVersion = (int)reader["CurrentVersion"],
-                                FilePath = reader["FilePath"].ToString(),
-                                FileSize = (long)reader["FileSize"]
+                                FilePath = reader["FilePath"]?.ToString() ?? "",
+                                FileSize = reader["FileSize"] != DBNull.Value ? (long)reader["FileSize"] : 0
                             };
                         }
                     }

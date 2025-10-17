@@ -203,34 +203,44 @@ namespace ReliableCDMS
             {
                 var document = documentDAL.GetDocumentById(documentId);
 
-                if (document != null)
+                if (document == null)
                 {
-                    string filePath = Server.MapPath(document.FilePath); // Get physical file path
-
-                    if (File.Exists(filePath))
-                    {
-                        // Log action
-                        int userId = Convert.ToInt32(Session["UserId"]);
-                        AuditHelper.LogAction(userId, "Download Document",
-                            $"Downloaded document: {document.FileName}, ID: {documentId}",
-                            Request.UserHostAddress);
-
-                        // Download file
-                        Response.Clear();
-                        Response.ContentType = "application/octet-stream";
-                        Response.AddHeader("Content-Disposition", $"attachment; filename={document.FileName}");
-                        Response.TransmitFile(filePath);
-                        Response.End();
-                    }
-                    else
-                    {
-                        ShowError("File not found on server.");
-                    }
+                    ShowError("Document not found or has been deleted.");
+                    return;
                 }
-                else
+
+                if (string.IsNullOrEmpty(document.FilePath))
                 {
-                    ShowError("Document not found.");
+                    ShowError("Document file path is invalid.");
+                    return;
                 }
+
+                string filePath = Server.MapPath(document.FilePath); // Get physical file path
+                int userId = Convert.ToInt32(Session["UserId"]);
+
+                if (!File.Exists(filePath))
+                {
+                    ShowError($"File not found on server. The file may have been moved or deleted.");
+
+                    AuditHelper.LogAction(userId, "Download Failed",
+                        $"File not found for document ID: {documentId}, Path: {document.FilePath}",
+                        Request.UserHostAddress);
+                    return;
+                }
+
+                // Log action
+                AuditHelper.LogAction(userId, "Download Document",
+                    $"Downloaded document: {document.FileName}, ID: {documentId}",
+                    Request.UserHostAddress);
+
+                // Download file
+                Response.Clear();
+                Response.ContentType = "application/octet-stream"; // Generic binary type
+                Response.AddHeader("Content-Disposition", $"attachment; filename={document.FileName}");
+                Response.AddHeader("Content-Length", new FileInfo(filePath).Length.ToString());
+                Response.TransmitFile(filePath);
+                Response.Flush();
+                Response.End();
             }
             catch (Exception ex)
             {
