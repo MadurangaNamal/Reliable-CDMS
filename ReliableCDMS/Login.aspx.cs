@@ -10,6 +10,17 @@ namespace ReliableCDMS
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                // Check if redirected due to session expiry
+                string reason = Request.QueryString["reason"];
+                if (reason == "sessionexpired")
+                {
+                    pnlError.Visible = true;
+                    lblError.Text = "Your session has expired. Please login again.";
+                }
+            }
+
             // If already logged in, redirect to dashboard
             if (User.Identity.IsAuthenticated)
             {

@@ -94,6 +94,46 @@ namespace ReliableCDMS.DAL
         }
 
         /// <summary>
+        /// Get user by username (for session restoration)
+        /// </summary>
+        public User GetUserByUsername(string username)
+        {
+            User user = null;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string query = @"SELECT UserId, Username, PasswordHash, Role, Department, IsActive, CreatedDate 
+                       FROM Users 
+                       WHERE Username = @Username AND IsActive = 1";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", username);
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            user = new User
+                            {
+                                UserId = (int)reader["UserId"],
+                                Username = reader["Username"].ToString(),
+                                PasswordHash = reader["PasswordHash"].ToString(),
+                                Role = reader["Role"].ToString(),
+                                Department = reader["Department"] != DBNull.Value ? reader["Department"].ToString() : "",
+                                IsActive = (bool)reader["IsActive"],
+                                CreatedDate = (DateTime)reader["CreatedDate"]
+                            };
+                        }
+                    }
+                }
+            }
+
+            return user;
+        }
+
+        /// <summary>
         /// Get all users
         /// </summary>
         public DataTable GetAllUsers()

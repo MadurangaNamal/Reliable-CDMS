@@ -364,3 +364,8 @@ FodyWeavers.xsd
 
 # Ignore vscode settings folder
 .vscode/
+
+# Ignore uploaded files 
+/ReliableCDMS/Uploads/*
+!/ReliableCDMS/Uploads/.gitkeep
+

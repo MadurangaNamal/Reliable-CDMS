@@ -220,6 +220,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\CleanupController.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="DAL\DocumentDAL.cs" />
     <Compile Include="DAL\UserDAL.cs" />
@@ -241,6 +242,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AuditHelper.cs" />
+    <Compile Include="Helpers\CleanupHelper.cs" />
     <Compile Include="Helpers\SecurityHelper.cs" />
     <Compile Include="IUserManagementService.cs" />
     <Compile Include="Login.aspx.cs">
