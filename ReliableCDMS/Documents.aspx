@@ -32,13 +32,18 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="fileUpload" class="form-label">Select File</label>
-                                <asp:FileUpload ID="fileUpload" runat="server" CssClass="form-control" />
+                                <asp:FileUpload ID="fileUpload" runat="server" CssClass="form-control"
+                                    onchange="validateFileSize(this)" />
+                                <div id="fileSizeError" class="alert alert-danger mt-2" style="display: none;">
+                                    File size exceeds 50MB limit. Please select a smaller file.
+                                </div>
                                 <asp:RequiredFieldValidator ID="rfvFile" runat="server" 
                                     ControlToValidate="fileUpload" 
                                     ErrorMessage="Please select a file" 
                                     CssClass="text-danger"
                                     ValidationGroup="Upload">
                                 </asp:RequiredFieldValidator>
+                                <small class="form-text text-muted" id="selectedFileSize" style="display: flex"></small>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -151,5 +156,38 @@
             </div>
         </div>
     </div>
-
 </asp:Content>
+
+<asp:Content ID="Content3" ContentPlaceHolderID="scripts" runat="server">
+    <script>
+        function validateFileSize(input) {
+            const maxSize = 52428800; // 50 MB in bytes
+            const errorElement = document.getElementById('fileSizeError');
+            const uploadButton = document.getElementById('<%= btnUpload.ClientID %>');
+            const fileSizeElement = document.getElementById('selectedFileSize');
+
+            if (input.files && input.files[0]) {
+                const fileSize = input.files[0].size;
+                const sizeMB = (fileSize / 1048576).toFixed(2);
+
+                // Always show the file size
+                fileSizeElement.textContent = `file size: ${sizeMB} MB`;
+
+                if (fileSize > maxSize) {
+                    errorElement.style.display = 'block';
+                    uploadButton.disabled = true;
+                    input.value = '';
+
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    uploadButton.disabled = false;
+                }
+            } else {
+                fileSizeElement.textContent = '';
+                errorElement.style.display = 'none';
+            }
+            return true;
+        }
+    </script>
+</asp:Content>  
