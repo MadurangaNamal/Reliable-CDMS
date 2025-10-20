@@ -49,8 +49,19 @@ namespace ReliableCDMS
                     return;
                 }
 
+                // Sanitize filename to prevent path traversal
+                string originalFileName = Path.GetFileName(fileUpload.FileName);
+                string fileName = FileHelper.SanitizeFileName(originalFileName);
+
+                string[] allowedTypes = { ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt", ".jpg", ".png", ".pptx", ".ppt" };
+
+                if (!FileHelper.IsAllowedFileType(fileName, allowedTypes))
+                {
+                    ShowError("File type not allowed. Allowed types: PDF, Word, Excel, Text, Images, Powerpoint");
+                    return;
+                }
+
                 // Get file info
-                string fileName = Path.GetFileName(fileUpload.FileName);
                 string category = ddlCategory.SelectedValue;
                 string comments = txtComments.Text.Trim();
                 long fileSize = fileUpload.PostedFile.ContentLength;
@@ -62,8 +73,6 @@ namespace ReliableCDMS
                     return;
                 }
 
-                // Create unique filename
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
                 string uploadsFolder = Server.MapPath("~/Uploads/");
 
                 if (!Directory.Exists(uploadsFolder))
@@ -71,7 +80,10 @@ namespace ReliableCDMS
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                // Get safe file path (prevents directory traversal)
+                string filePath = FileHelper.GetSafeUploadPath(fileName, uploadsFolder);
+                string uniqueFileName = Path.GetFileName(filePath);
+
                 fileUpload.SaveAs(filePath); // Save file
 
                 int userId = Convert.ToInt32(Session["UserId"]);
@@ -145,6 +157,19 @@ namespace ReliableCDMS
                 // Clear the form
                 ddlCategory.SelectedIndex = 0;
                 txtComments.Text = "";
+            }
+            catch (SecurityException ex)
+            {
+                ShowError("Security validation failed: " + ex.Message);
+
+                // Log security incident
+                if (Session["UserId"] != null)
+                {
+                    int userId = Convert.ToInt32(Session["UserId"]);
+                    AuditHelper.LogAction(userId, "Security Alert",
+                        $"Attempted path traversal: {fileUpload.FileName}",
+                        Request.UserHostAddress);
+                }
             }
             catch (Exception ex)
             {
