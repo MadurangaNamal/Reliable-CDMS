@@ -24,7 +24,7 @@ namespace ReliableCDMS
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Cleanup Exception: {ex.Message}");
+                Debug.WriteLine($"Startup cleanup failed: {ex.Message}");
             }
         }
     }

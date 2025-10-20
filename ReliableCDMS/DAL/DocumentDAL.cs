@@ -54,7 +54,7 @@ namespace ReliableCDMS.DAL
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 string query = @"SELECT d.DocumentId, d.FileName, d.Category, d.UploadDate, 
-                                       d.CurrentVersion, d.FileSize, u.Username as UploadedByName
+                               d.CurrentVersion, d.FileSize, u.Username as UploadedByName
                                FROM Documents d
                                INNER JOIN Users u ON d.UploadedBy = u.UserId
                                WHERE d.IsDeleted = 0 
@@ -239,42 +239,62 @@ namespace ReliableCDMS.DAL
             {
                 conn.Open();
 
-                // Get current version
-                string getVersionQuery = "SELECT CurrentVersion FROM Documents WHERE DocumentId = @DocumentId";
-                int currentVersion = 1;
-
-                using (SqlCommand cmd = new SqlCommand(getVersionQuery, conn))
+                using (SqlTransaction transaction = conn.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                    object result = cmd.ExecuteScalar();
-                    if (result != null)
-                        currentVersion = (int)result;
+                    try
+                    {
+                        // Get current version with lock
+                        string getVersionQuery = @"SELECT CurrentVersion 
+                                          FROM Documents WITH (UPDLOCK, ROWLOCK) 
+                                          WHERE DocumentId = @DocumentId";
+                        int currentVersion = 1;
+
+                        using (SqlCommand cmd = new SqlCommand(getVersionQuery, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@DocumentId", documentId);
+                            object result = cmd.ExecuteScalar();
+
+                            if (result == null)
+                            {
+                                transaction.Rollback();
+                                return false; // Document not found
+                            }
+
+                            currentVersion = (int)result;
+                        }
+
+                        int newVersion = currentVersion + 1;
+
+                        // Update document
+                        string updateQuery = @"UPDATE Documents 
+                                     SET CurrentVersion = @NewVersion, 
+                                         FilePath = @FilePath,
+                                         FileSize = @FileSize,
+                                         UploadDate = GETDATE()
+                                     WHERE DocumentId = @DocumentId";
+
+                        using (SqlCommand cmd = new SqlCommand(updateQuery, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@DocumentId", documentId);
+                            cmd.Parameters.AddWithValue("@NewVersion", newVersion);
+                            cmd.Parameters.AddWithValue("@FilePath", filePath);
+                            cmd.Parameters.AddWithValue("@FileSize", fileSize);
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Create version entry
+                        CreateDocumentVersionInTransaction(conn, transaction, documentId, newVersion, filePath, uploadedBy, comments);
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
-
-                int newVersion = currentVersion + 1;
-
-                // Update document
-                string updateQuery = @"UPDATE Documents 
-                             SET CurrentVersion = @NewVersion, 
-                                 FilePath = @FilePath,
-                                 FileSize = @FileSize,
-                                 UploadDate = GETDATE()
-                             WHERE DocumentId = @DocumentId";
-
-                using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@DocumentId", documentId);
-                    cmd.Parameters.AddWithValue("@NewVersion", newVersion);
-                    cmd.Parameters.AddWithValue("@FilePath", filePath);
-                    cmd.Parameters.AddWithValue("@FileSize", fileSize);
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                // Create version entry
-                CreateDocumentVersion(documentId, newVersion, filePath, uploadedBy, comments);
-
-                return true;
             }
         }
 
@@ -300,6 +320,27 @@ namespace ReliableCDMS.DAL
         #endregion
 
         #region Document Version Operations
+
+        /// <summary>
+        /// Create document version within a transaction
+        /// </summary>
+        private void CreateDocumentVersionInTransaction(SqlConnection conn, SqlTransaction transaction,
+            int documentId, int versionNumber, string filePath, int uploadedBy, string comments)
+        {
+            string query = @"INSERT INTO DocumentVersions (DocumentId, VersionNumber, FilePath, UploadedBy, UploadDate, Comments) 
+                   VALUES (@DocumentId, @VersionNumber, @FilePath, @UploadedBy, GETDATE(), @Comments)";
+
+            using (SqlCommand cmd = new SqlCommand(query, conn, transaction))
+            {
+                cmd.Parameters.AddWithValue("@DocumentId", documentId);
+                cmd.Parameters.AddWithValue("@VersionNumber", versionNumber);
+                cmd.Parameters.AddWithValue("@FilePath", filePath);
+                cmd.Parameters.AddWithValue("@UploadedBy", uploadedBy);
+                cmd.Parameters.AddWithValue("@Comments", comments ?? "");
+
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         /// <summary>
         /// Create document version entry
