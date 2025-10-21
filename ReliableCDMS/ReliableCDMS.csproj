@@ -243,6 +243,7 @@
     </Compile>
     <Compile Include="Helpers\AuditHelper.cs" />
     <Compile Include="Helpers\CleanupHelper.cs" />
+    <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\SecurityHelper.cs" />
     <Compile Include="IUserManagementService.cs" />

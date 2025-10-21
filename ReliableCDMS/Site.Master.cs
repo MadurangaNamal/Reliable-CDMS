@@ -12,6 +12,12 @@ namespace ReliableCDMS
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Check database connection
+            if (!DatabaseHelper.TestConnection(out string dbError))
+            {
+                Response.Write($"<div class='alert alert-danger'>Database unavailable: {dbError}</div>");
+            }
+
             if (Context.User.Identity.IsAuthenticated)
             {
                 // User has valid auth cookie
