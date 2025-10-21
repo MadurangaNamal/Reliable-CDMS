@@ -166,6 +166,7 @@ namespace ReliableCDMS
                 if (Session["UserId"] != null)
                 {
                     int userId = Convert.ToInt32(Session["UserId"]);
+
                     AuditHelper.LogAction(userId, "Security Alert",
                         $"Attempted path traversal: {fileUpload.FileName}",
                         Request.UserHostAddress);
