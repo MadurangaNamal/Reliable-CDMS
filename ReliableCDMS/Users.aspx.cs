@@ -1,13 +1,14 @@
 ﻿using ReliableCDMS.DAL;
 using ReliableCDMS.Helpers;
 using System;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 
 namespace ReliableCDMS
 {
-    public partial class Users : System.Web.UI.Page
+    public partial class Users : Page
     {
-        private UserDAL userDAL = new UserDAL();
+        private readonly UserDAL userDAL = new UserDAL();
 
         protected void Page_Load(object sender, EventArgs e)
         {

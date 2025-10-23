@@ -160,6 +160,23 @@ namespace ReliableCDMS.DAL
         }
 
         /// <summary>
+        /// Get total users count
+        /// </summary>
+        public string GetTotalUsersCount()
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                string totalUsersQuery = "SELECT COUNT(*) FROM Users WHERE IsActive = 1";
+
+                using (SqlCommand cmd = new SqlCommand(totalUsersQuery, conn))
+                {
+                    conn.Open();
+                    return cmd.ExecuteScalar().ToString();
+                }
+            }
+        }
+
+        /// <summary>
         /// Create new user
         /// </summary>
         public int CreateUser(string username, string passwordHash, string role, string department)

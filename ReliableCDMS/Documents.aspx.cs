@@ -4,11 +4,12 @@ using System;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 
 namespace ReliableCDMS
 {
-    public partial class Documents : System.Web.UI.Page
+    public partial class Documents : Page
     {
         private readonly DocumentDAL documentDAL = new DocumentDAL();
 

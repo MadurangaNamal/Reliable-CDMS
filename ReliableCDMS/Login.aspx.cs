@@ -3,10 +3,11 @@ using ReliableCDMS.Helpers;
 using ReliableCDMS.Models;
 using System;
 using System.Web.Security;
+using System.Web.UI;
 
 namespace ReliableCDMS
 {
-    public partial class Login : System.Web.UI.Page
+    public partial class Login : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
