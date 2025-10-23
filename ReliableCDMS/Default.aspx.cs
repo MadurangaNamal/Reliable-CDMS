@@ -1,5 +1,6 @@
 ﻿using ReliableCDMS.DAL;
 using System;
+using System.Web;
 using System.Web.UI;
 
 namespace ReliableCDMS
@@ -41,8 +42,8 @@ namespace ReliableCDMS
             }
             catch (Exception ex)
             {
-                // Handle error
-                Response.Write("<script>alert('Error loading dashboard: " + ex.Message + "');</script>");
+                string errorMessage = HttpUtility.JavaScriptStringEncode("Error loading dashboard: " + ex.Message);
+                Response.Write($"<script>alert('{errorMessage}');</script>");
             }
         }
     }
