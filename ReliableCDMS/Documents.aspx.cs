@@ -28,8 +28,14 @@ namespace ReliableCDMS
         {
             try
             {
-                gvDocuments.DataSource = documentDAL.GetAllDocuments();
+                var documents = documentDAL.GetAllDocuments();
+
+                ViewState["TotalRecords"] = documents.Rows.Count;
+
+                gvDocuments.DataSource = documents;
                 gvDocuments.DataBind();
+
+                UpdatePaginationInfo();
             }
             catch (Exception ex)
             {
@@ -194,8 +200,15 @@ namespace ReliableCDMS
                 }
                 else
                 {
-                    gvDocuments.DataSource = documentDAL.SearchDocuments(searchTerm);
+                    var documents = documentDAL.SearchDocuments(searchTerm);
+
+                    ViewState["TotalRecords"] = documents.Rows.Count;
+
+                    gvDocuments.PageIndex = 0;
+                    gvDocuments.DataSource = documents;
                     gvDocuments.DataBind();
+
+                    UpdatePaginationInfo();
                 }
             }
             catch (Exception ex)
@@ -333,6 +346,55 @@ namespace ReliableCDMS
                 return (bytes / 1024).ToString("F2") + " KB";
             else
                 return (bytes / 1048576).ToString("F2") + " MB";
+        }
+
+        /// <summary>
+        /// Handle page index changing event
+        /// </summary>
+        protected void gvDocuments_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            gvDocuments.PageIndex = e.NewPageIndex;
+            LoadDocuments();
+            UpdatePaginationInfo();
+        }
+
+        /// <summary>
+        /// Handle page size change
+        /// </summary>
+        protected void ddlPageSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            gvDocuments.PageSize = Convert.ToInt32(ddlPageSize.SelectedValue);
+            gvDocuments.PageIndex = 0; // Reset to first page
+            LoadDocuments();
+            UpdatePaginationInfo();
+        }
+
+        /// <summary>
+        /// Update pagination information label
+        /// </summary>
+        private void UpdatePaginationInfo()
+        {
+            if (gvDocuments.Rows.Count > 0)
+            {
+                int currentPage = gvDocuments.PageIndex + 1;
+                int totalPages = gvDocuments.PageCount;
+                int startRecord = (gvDocuments.PageIndex * gvDocuments.PageSize) + 1;
+                int endRecord = startRecord + gvDocuments.Rows.Count - 1;
+                int totalRecords = gvDocuments.PageCount * gvDocuments.PageSize;
+
+                // Get actual total from ViewState if available
+                if (ViewState["TotalRecords"] != null)
+                {
+                    totalRecords = (int)ViewState["TotalRecords"];
+                    endRecord = Math.Min(endRecord, totalRecords);
+                }
+
+                lblPaginationInfo.Text = $"Showing {startRecord} to {endRecord} of {totalRecords} documents (Page {currentPage} of {totalPages})";
+            }
+            else
+            {
+                lblPaginationInfo.Text = "No documents found.";
+            }
         }
 
         /// <summary>
