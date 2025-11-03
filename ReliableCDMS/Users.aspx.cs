@@ -32,8 +32,14 @@ namespace ReliableCDMS
         {
             try
             {
-                gvUsers.DataSource = userDAL.GetAllUsers();
+                var users = userDAL.GetAllUsers();
+
+                ViewState["TotalRecords"] = users.Rows.Count;
+
+                gvUsers.DataSource = users;
                 gvUsers.DataBind();
+
+                UpdatePaginationInfo();
             }
             catch (Exception ex)
             {
@@ -104,6 +110,56 @@ namespace ReliableCDMS
             }
         }
 
+        /// <summary>
+        /// Handle page index changing event
+        /// </summary>
+        protected void gvUsers_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            gvUsers.PageIndex = e.NewPageIndex;
+
+            LoadUsers();
+            UpdatePaginationInfo();
+        }
+
+        /// <summary>
+        /// Handle page size change
+        /// </summary>
+        protected void ddlPageSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            gvUsers.PageSize = Convert.ToInt32(ddlPageSize.SelectedValue);
+            gvUsers.PageIndex = 0; // Reset to first page
+
+            LoadUsers();
+            UpdatePaginationInfo();
+        }
+
+        /// <summary>
+        /// Update pagination information label
+        /// </summary>
+        private void UpdatePaginationInfo()
+        {
+            if (gvUsers.Rows.Count > 0)
+            {
+                int currentPage = gvUsers.PageIndex + 1;
+                int totalPages = gvUsers.PageCount;
+                int startRecord = (gvUsers.PageIndex * gvUsers.PageSize) + 1;
+                int endRecord = startRecord + gvUsers.Rows.Count - 1;
+                int totalRecords = gvUsers.PageCount * gvUsers.PageSize;
+
+                // Get actual total from ViewState
+                if (ViewState["TotalRecords"] != null)
+                {
+                    totalRecords = (int)ViewState["TotalRecords"];
+                    endRecord = Math.Min(endRecord, totalRecords);
+                }
+
+                lblPaginationInfo.Text = $"Showing {startRecord} to {endRecord} of {totalRecords} users (Page {currentPage} of {totalPages})";
+            }
+            else
+            {
+                lblPaginationInfo.Text = "No users found.";
+            }
+        }
         /// <summary>
         /// Delete (deactivate) user
         /// </summary>

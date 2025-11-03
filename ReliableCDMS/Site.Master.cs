@@ -12,7 +12,6 @@ namespace ReliableCDMS
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Check database connection
             if (!DatabaseHelper.TestConnection(out string dbError))
             {
                 Response.Write($"<div class='alert alert-danger'>Database unavailable: {dbError}</div>");
@@ -23,13 +22,13 @@ namespace ReliableCDMS
                 // User has valid auth cookie
                 if (Session["UserId"] == null)
                 {
-                    // Session expired but auth cookie still valid
-                    RestoreSessionFromAuthCookie();
+                    RestoreSessionFromAuthCookie(); // Session expired 
                 }
 
-                if (Session["UserId"] == null) // Double check session was restored successfully
+                // check session restoration
+                if (Session["UserId"] == null)
                 {
-                    // Restoration failed - force re-login
+                    // Restoration failed, force re-login
                     FormsAuthentication.SignOut();
                     Response.Redirect("~/Login.aspx?reason=sessionexpired");
                 }
@@ -72,34 +71,28 @@ namespace ReliableCDMS
                 }
                 else
                 {
-                    // User doesn't exist or is inactive
-                    FormsAuthentication.SignOut();
+                    FormsAuthentication.SignOut();  // User doesn't exist or is inactive
                 }
             }
             catch (Exception ex)
             {
-                // Log error without throw, will redirect to login
                 Debug.WriteLine("Session restoration failed: " + ex.Message);
             }
         }
 
         protected void lnkLogout_Click(object sender, EventArgs e)
         {
-            // Log the logout action
             if (Session["UserId"] != null)
             {
                 int userId = Convert.ToInt32(Session["UserId"]);
                 AuditHelper.LogAction(userId, "Logout", "User logged out", Request.UserHostAddress);
             }
 
-            // Clear session
             Session.Clear();
             Session.Abandon();
 
-            // Sign out 
             FormsAuthentication.SignOut();
 
-            // Redirect to login page
             Response.Redirect("~/Login.aspx");
         }
     }
