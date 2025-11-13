@@ -29,24 +29,6 @@ ReliableCDMS is a secure document management system built with ASP.NET WebForms,
 - Version control
 - Soft delete (documents marked as deleted)
 
-## Assumptions 
-- File uploads limited to 50MB
-- Password Complexity: No enforced rules (e.g., minimum length, special characters).
-- Session Timeout: Defaults to 48 hours.
-- API Authentication: Basic Auth only.
-- Account Lockout: No lockout after failed attempts.
-- File Storage: Local file system (~/Uploads/).
-- File Restrictions: No type limits; max 50MB.
-- Document Permissions: All users can view all documents.
-- Deletion: Soft delete only.
-- Roles: Fixed (Admin, Manager, Employee).
-- User Activation: Manual by Admin.
-- Search Scope: Filename/category only.
-- API Features: No versioning, rate limiting, or pagination.
-- Database Security: Integrated auth; no encryption at rest.
-- Caching/Scalability: None implemented; single-server.
-- HTTPS/Logging: Not enforced; console-only logs.
-  
 ## Prerequisites
 - Visual Studio 2019/2022
 - SQL Server Express 2019+ or LocalDB
