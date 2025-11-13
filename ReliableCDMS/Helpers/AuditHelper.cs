@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ReliableCDMS.Helpers
 {
     public static class AuditHelper
     {
-        private static Dictionary<string, DateTime> _recentEntries = new Dictionary<string, DateTime>();
+        private static readonly Dictionary<string, DateTime> _recentEntries = new Dictionary<string, DateTime>();
         private static readonly object _lock = new object();
         private static readonly TimeSpan DuplicateWindow = TimeSpan.FromSeconds(2);
         private static readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
@@ -83,6 +84,35 @@ namespace ReliableCDMS.Helpers
                 // Log error to debug output ( Not throwing exception to avoid breaking the main functionality )
                 Debug.WriteLine("Audit logging failed: " + ex.Message);
                 Debug.WriteLine("Stack trace: " + ex.StackTrace);
+            }
+        }
+
+        // <summary>
+        /// Log action - Async
+        /// </summary>
+        public static async Task LogActionAsync(int userId, string action, string details, string ipAddress)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    string query = @"INSERT INTO AuditLogs (UserId, Action, Details, IPAddress, ActionDate) 
+                                   VALUES (@UserId, @Action, @Details, @IPAddress, GETDATE())";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@Action", action);
+                        cmd.Parameters.AddWithValue("@Details", details);
+                        cmd.Parameters.AddWithValue("@IPAddress", ipAddress);
+
+                        await conn.OpenAsync();
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch
+            {
             }
         }
     }

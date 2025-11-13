@@ -180,6 +180,7 @@ namespace ReliableCDMS.Controllers
                 string uploadsFolder = HttpContext.Current.Server.MapPath("~/Uploads/");
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
                 long fileSize = file.ContentLength;
+
                 file.SaveAs(filePath);
 
                 // Update document

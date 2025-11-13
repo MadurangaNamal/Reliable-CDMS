@@ -3,7 +3,7 @@ using ReliableCDMS.Helpers;
 using System;
 using System.Data.SqlClient;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -48,6 +48,17 @@ namespace ReliableCDMS
         /// </summary>
         protected void btnUpload_Click(object sender, EventArgs e)
         {
+            RegisterAsyncTask(new PageAsyncTask(async () =>
+            {
+                await UploadDocumentAsync();
+            }));
+        }
+
+        /// <summary>
+        /// Async upload implementation
+        /// </summary>
+        private async Task UploadDocumentAsync()
+        {
             try
             {
                 if (!fileUpload.HasFile)
@@ -56,7 +67,6 @@ namespace ReliableCDMS
                     return;
                 }
 
-                // Sanitize filename to prevent path traversal
                 string originalFileName = Path.GetFileName(fileUpload.FileName);
                 string fileName = FileHelper.SanitizeFileName(originalFileName);
 
@@ -68,12 +78,10 @@ namespace ReliableCDMS
                     return;
                 }
 
-                // Get file info
                 string category = ddlCategory.SelectedValue;
                 string comments = txtComments.Text.Trim();
                 long fileSize = fileUpload.PostedFile.ContentLength;
 
-                // Validate file size (max 50MB)
                 if (fileSize > 52428800)
                 {
                     ShowError("File size exceeds 50MB limit.");
@@ -87,11 +95,10 @@ namespace ReliableCDMS
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // Get safe file path (prevents directory traversal)
                 string filePath = FileHelper.GetSafeUploadPath(fileName, uploadsFolder);
                 string uniqueFileName = Path.GetFileName(filePath);
 
-                fileUpload.SaveAs(filePath); // Save file
+                await SaveFileAsync(fileUpload.PostedFile.InputStream, filePath);
 
                 int userId = Convert.ToInt32(Session["UserId"]);
                 string relativeFilePath = "~/Uploads/" + uniqueFileName;
@@ -104,15 +111,13 @@ namespace ReliableCDMS
                 {
                     try
                     {
-                        // Try to create as new document first
-                        var existingDoc = documentDAL.GetDocumentByFileName(fileName);
+                        var existingDoc = await documentDAL.GetDocumentByFileNameAsync(fileName);
 
                         if (existingDoc == null)
                         {
-                            // No document exists, create new
-                            documentId = documentDAL.CreateDocument(fileName, category, userId, relativeFilePath, fileSize);
+                            documentId = await documentDAL.CreateDocumentAsync(fileName, category, userId, relativeFilePath, fileSize);
 
-                            AuditHelper.LogAction(userId, "Upload Document",
+                            await AuditHelper.LogActionAsync(userId, "Upload Document",
                                 $"Uploaded new document: {fileName}, ID: {documentId}",
                                 Request.UserHostAddress);
 
@@ -121,16 +126,15 @@ namespace ReliableCDMS
                         }
                         else
                         {
-                            // Document exists, update version
                             if (string.IsNullOrEmpty(comments))
                             {
                                 comments = "Updated version";
                             }
 
-                            documentDAL.UpdateDocument(existingDoc.DocumentId, relativeFilePath, userId, comments, fileSize);
+                            await documentDAL.UpdateDocumentAsync(existingDoc.DocumentId, relativeFilePath, userId, comments, fileSize);
                             documentId = existingDoc.DocumentId;
 
-                            AuditHelper.LogAction(userId, "Update Document Version",
+                            await AuditHelper.LogActionAsync(userId, "Update Document Version",
                                 $"Updated document: {fileName} to version {existingDoc.CurrentVersion + 1}",
                                 Request.UserHostAddress);
 
@@ -140,7 +144,6 @@ namespace ReliableCDMS
                     }
                     catch (SqlException ex) when (ex.Number == 2601 || ex.Number == 2627)
                     {
-                        // Unique constraint violation - another user created the document
                         retryCount++;
 
                         if (retryCount >= maxRetries)
@@ -155,13 +158,12 @@ namespace ReliableCDMS
                             return;
                         }
 
-                        Thread.Sleep(100 * retryCount); // Wait and retry
+                        await Task.Delay(100 * retryCount); // Async delay instead of Thread.Sleep
                     }
                 }
 
                 LoadDocuments();
 
-                // Clear the form
                 ddlCategory.SelectedIndex = 0;
                 txtComments.Text = "";
             }
@@ -169,12 +171,11 @@ namespace ReliableCDMS
             {
                 ShowError("Security validation failed: " + ex.Message);
 
-                // Log security incident
                 if (Session["UserId"] != null)
                 {
                     int userId = Convert.ToInt32(Session["UserId"]);
 
-                    AuditHelper.LogAction(userId, "Security Alert",
+                    await AuditHelper.LogActionAsync(userId, "Security Alert",
                         $"Attempted path traversal: {fileUpload.FileName}",
                         Request.UserHostAddress);
                 }
@@ -182,6 +183,17 @@ namespace ReliableCDMS
             catch (Exception ex)
             {
                 ShowError("Error uploading document: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Async file save
+        /// </summary>
+        private async Task SaveFileAsync(Stream inputStream, string filePath)
+        {
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
+            {
+                await inputStream.CopyToAsync(fileStream);
             }
         }
 

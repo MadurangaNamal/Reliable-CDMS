@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Documents" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Documents.aspx.cs" Inherits="ReliableCDMS.Documents" MaintainScrollPositionOnPostback="true" %>
+﻿<%@ Page Title="Documents" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Documents.aspx.cs" Inherits="ReliableCDMS.Documents" MaintainScrollPositionOnPostback="true" Async="true" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style>
