@@ -256,7 +256,9 @@
     </Compile>
     <Compile Include="Models\Document.cs" />
     <Compile Include="Models\DocumentVersion.cs" />
+    <Compile Include="Models\ServiceResponse.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserManagementService.svc.cs">
       <DependentUpon>UserManagementService.svc</DependentUpon>

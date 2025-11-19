@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+﻿using ReliableCDMS.Models;
 using System.ServiceModel;
 
 namespace ReliableCDMS
@@ -23,43 +23,5 @@ namespace ReliableCDMS
 
         [OperationContract]
         UserInfo[] GetAllUsers(string authUsername, string authPassword);
-    }
-
-    /// <summary>
-    /// Service response object
-    /// </summary>
-    [DataContract]
-    public class ServiceResponse
-    {
-        [DataMember]
-        public bool Success { get; set; }
-
-        [DataMember]
-        public string Message { get; set; }
-
-        [DataMember]
-        public int RecordId { get; set; }
-    }
-
-    /// <summary>
-    /// User information object
-    /// </summary>
-    [DataContract]
-    public class UserInfo
-    {
-        [DataMember]
-        public int UserId { get; set; }
-
-        [DataMember]
-        public string Username { get; set; }
-
-        [DataMember]
-        public string Role { get; set; }
-
-        [DataMember]
-        public string Department { get; set; }
-
-        [DataMember]
-        public bool IsActive { get; set; }
     }
 }
