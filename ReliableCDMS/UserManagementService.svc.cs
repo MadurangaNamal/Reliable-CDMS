@@ -2,7 +2,9 @@
 using ReliableCDMS.Helpers;
 using ReliableCDMS.Models;
 using System;
+using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Web;
 
 namespace ReliableCDMS
 {
@@ -16,7 +18,7 @@ namespace ReliableCDMS
         private bool AuthenticateServiceUser(string username, string password, out int userId, out string userRole)
         {
             userId = 0;
-            userRole = "";
+            userRole = string.Empty;
 
             try
             {
@@ -46,10 +48,7 @@ namespace ReliableCDMS
             try
             {
                 // Authenticate
-                int authUserId;
-                string authUserRole;
-
-                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
                 }
@@ -67,8 +66,11 @@ namespace ReliableCDMS
                 if (userId > 0)
                 {
                     // Log action
-                    AuditHelper.LogAction(authUserId, "SOAP Create User",
-                        $"Created user via SOAP: {username}, Role: {role}", "");
+                    AuditHelper.LogAction(authUserId, 
+                        "SOAP Create User",
+                        $"Created user via SOAP: {username}, " +
+                        $"Role: {role}", 
+                        HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse
                     {
@@ -84,7 +86,7 @@ namespace ReliableCDMS
             }
             catch (Exception ex)
             {
-                return new ServiceResponse { Success = false, Message = "Error: " + ex.Message };
+                return new ServiceResponse { Success = false, Message = $"Error: {ex.Message}" };
             }
         }
 
@@ -95,15 +97,11 @@ namespace ReliableCDMS
         {
             try
             {
-                int authUserId;
-                string authUserRole;
-
-                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
                 }
 
-                // Check if user is admin
                 if (authUserRole != "Admin")
                 {
                     return new ServiceResponse { Success = false, Message = "Unauthorized. Admin role required." };
@@ -114,9 +112,10 @@ namespace ReliableCDMS
 
                 if (success)
                 {
-                    // Log action
-                    AuditHelper.LogAction(authUserId, "SOAP Update User",
-                        $"Updated user via SOAP: User ID: {userId}", "");
+                    AuditHelper.LogAction(authUserId, 
+                        "SOAP Update User",
+                        $"Updated user via SOAP: User ID: {userId}",
+                        HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse { Success = true, Message = "User updated successfully" };
                 }
@@ -138,15 +137,11 @@ namespace ReliableCDMS
         {
             try
             {
-                int authUserId;
-                string authUserRole;
-
-                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
                 }
 
-                // Check if user is admin
                 if (authUserRole != "Admin")
                 {
                     return new ServiceResponse { Success = false, Message = "Unauthorized. Admin role required." };
@@ -163,9 +158,10 @@ namespace ReliableCDMS
 
                 if (success)
                 {
-                    // Log action
-                    AuditHelper.LogAction(authUserId, "SOAP Delete User",
-                        $"Deleted user via SOAP: User ID: {userId}", "");
+                    AuditHelper.LogAction(authUserId, 
+                        "SOAP Delete User",
+                        $"Deleted user via SOAP: User ID: {userId}", 
+                        HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse { Success = true, Message = "User deleted successfully" };
                 }
@@ -187,10 +183,7 @@ namespace ReliableCDMS
         {
             try
             {
-                int authUserId;
-                string authUserRole;
-
-                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
                 {
                     return new ServiceResponse { Success = false, Message = "Authentication failed" };
                 }
@@ -206,9 +199,10 @@ namespace ReliableCDMS
 
                 if (success)
                 {
-                    // Log the action
-                    AuditHelper.LogAction(authUserId, "SOAP Activate User",
-                        $"Activated user via SOAP: User ID: {userId}", "");
+                    AuditHelper.LogAction(authUserId, 
+                        "SOAP Activate User",
+                        $"Activated user via SOAP: User ID: {userId}", 
+                        HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse { Success = true, Message = "User activated successfully" };
                 }
@@ -230,10 +224,8 @@ namespace ReliableCDMS
         {
             try
             {
-                int authUserId;
-                string authUserRole;
-
-                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                
+                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
                 {
                     return null;
                 }
@@ -268,15 +260,11 @@ namespace ReliableCDMS
         {
             try
             {
-                int authUserId;
-                string authUserRole;
-
-                if (!AuthenticateServiceUser(authUsername, authPassword, out authUserId, out authUserRole))
+                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
                 {
                     return new UserInfo[0];
                 }
 
-                // Check if user is admin
                 if (authUserRole != "Admin")
                 {
                     return new UserInfo[0];
@@ -284,7 +272,7 @@ namespace ReliableCDMS
 
                 // Get all users
                 var usersTable = userDAL.GetAllUsers();
-                var usersList = new System.Collections.Generic.List<UserInfo>();
+                var usersList = new List<UserInfo>();
 
                 foreach (System.Data.DataRow row in usersTable.Rows)
                 {
