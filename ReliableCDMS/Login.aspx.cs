@@ -14,7 +14,8 @@ namespace ReliableCDMS
             if (!IsPostBack)
             {
                 // Check if redirected due to session expiry
-                string reason = Request.QueryString["reason"];
+                var reason = Request.QueryString["reason"];
+
                 if (reason == "sessionexpired")
                 {
                     pnlError.Visible = true;
@@ -52,7 +53,8 @@ namespace ReliableCDMS
                     Session["Department"] = user.Department;
 
                     // Create authentication ticket
-                    FormsAuthentication.SetAuthCookie(username, false);
+                    bool rememberMe = chkRememberMe.Checked;
+                    FormsAuthentication.SetAuthCookie(username, rememberMe);
 
                     // Log the login action
                     string ipAddress = Request.UserHostAddress;

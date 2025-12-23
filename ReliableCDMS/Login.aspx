@@ -2,63 +2,84 @@
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head runat="server">
-        <title>Login - ReliableCDMS</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-        <style>
-            body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .login-card {
-                background: white;
-                border-radius: 10px;
-                padding: 40px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-                width: 100%;
-                max-width: 400px;
-            }
-        </style>
-    </head>
-    <body>
-        <form id="form1" runat="server">
-            <div class="login-card">
-                <h2 class="text-center mb-4">ReliableCDMS</h2>
-                <h6 class="text-center text-muted mb-4">Login to Your Account</h6>
-            
-                <asp:Panel ID="pnlError" runat="server" CssClass="alert alert-danger" Visible="false">
-                    <asp:Label ID="lblError" runat="server"></asp:Label>
-                </asp:Panel>
+<head runat="server">
+    <title>Login - ReliableCDMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-                <div class="mb-3">
-                    <label for="txtUsername" class="form-label">Username</label>
-                    <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" placeholder="Enter username"></asp:TextBox>
-                    <asp:RequiredFieldValidator ID="rfvUsername" runat="server" 
-                        ControlToValidate="txtUsername" 
-                        ErrorMessage="Username is required" 
-                        CssClass="text-danger" 
-                        Display="Dynamic">
-                    </asp:RequiredFieldValidator>
-                </div>
+        .login-card {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
 
-                <div class="mb-3">
-                    <label for="txtPassword" class="form-label">Password</label>
-                    <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Enter password"></asp:TextBox>
-                    <asp:RequiredFieldValidator ID="rfvPassword" runat="server" 
-                        ControlToValidate="txtPassword" 
-                        ErrorMessage="Password is required" 
-                        CssClass="text-danger" 
-                        Display="Dynamic">
-                    </asp:RequiredFieldValidator>
-                </div>
-
-                <div class="d-grid">
-                    <asp:Button ID="btnLogin" runat="server" Text="Login" CssClass="btn btn-primary btn-lg" OnClick="btnLogin_Click" />
-                </div>
+        .brand-title {
+            font-weight: 700;
+            font-size: 1.875rem;
+            color: #2d3748;
+            letter-spacing: -0.5px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="login-card">
+            <div class="text-center mb-4">
+                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                <h2 class="mb-2 brand-title">ReliableCDMS</h2>
+                <p class="text-muted">Corporate Document Management System</p>
             </div>
-        </form>
-    </body>
+            <h6 class="text-center text-muted mb-4">Login to Your Account</h6>
+
+            <asp:Panel ID="pnlError" runat="server" CssClass="alert alert-danger" Visible="false">
+                <asp:Label ID="lblError" runat="server"></asp:Label>
+            </asp:Panel>
+
+            <div class="mb-3">
+                <label for="txtUsername" class="form-label">Username</label>
+                <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" placeholder="Enter username"></asp:TextBox>
+                <asp:RequiredFieldValidator ID="rfvUsername" runat="server"
+                    ControlToValidate="txtUsername"
+                    ErrorMessage="Username is required"
+                    CssClass="text-danger"
+                    Display="Dynamic">
+                </asp:RequiredFieldValidator>
+            </div>
+
+            <div class="mb-3">
+                <label for="txtPassword" class="form-label">Password</label>
+                <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Enter password"></asp:TextBox>
+                <asp:RequiredFieldValidator ID="rfvPassword" runat="server"
+                    ControlToValidate="txtPassword"
+                    ErrorMessage="Password is required"
+                    CssClass="text-danger"
+                    Display="Dynamic">
+                </asp:RequiredFieldValidator>
+            </div>
+
+            <div class="form-check mb-3" style="margin-left: 0px;">
+                <asp:CheckBox ID="chkRememberMe" runat="server" />
+                <label class="form-check-label" for="chkRememberMe">
+                    Remember me
+                </label>
+            </div>
+
+            <div class="d-grid">
+                <asp:Button ID="btnLogin" runat="server" Text="Login" CssClass="btn btn-primary btn-lg" OnClick="btnLogin_Click" />
+            </div>
+        </div>
+    </form>
+</body>
 </html>

@@ -28,7 +28,8 @@ namespace ReliableCDMS.DAL
                 string query = @"SELECT d.DocumentId, d.FileName, d.Category, d.UploadDate, 
                                        d.CurrentVersion, d.FileSize, u.Username as UploadedByName
                                FROM Documents d
-                               INNER JOIN Users u ON d.UploadedBy = u.UserId
+                               INNER JOIN Users u 
+                               ON d.UploadedBy = u.UserId
                                WHERE d.IsDeleted = 0
                                ORDER BY d.UploadDate DESC";
 
@@ -57,7 +58,8 @@ namespace ReliableCDMS.DAL
                 string query = @"SELECT d.DocumentId, d.FileName, d.Category, d.UploadDate, 
                                d.CurrentVersion, d.FileSize, u.Username as UploadedByName
                                FROM Documents d
-                               INNER JOIN Users u ON d.UploadedBy = u.UserId
+                               INNER JOIN Users u 
+                               ON d.UploadedBy = u.UserId
                                WHERE d.IsDeleted = 0 
                                AND (d.FileName LIKE @SearchTerm OR d.Category LIKE @SearchTerm)
                                ORDER BY d.UploadDate DESC";
@@ -125,8 +127,7 @@ namespace ReliableCDMS.DAL
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                string query = @"SELECT * FROM Documents 
-                        WHERE FileName = @FileName AND IsDeleted = 0";
+                string query = @"SELECT * FROM Documents WHERE FileName = @FileName AND IsDeleted = 0";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
