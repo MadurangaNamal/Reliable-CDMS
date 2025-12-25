@@ -61,6 +61,12 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
+        .highlight-section {
+            border: 2px solid #0d6efd;
+            box-shadow: 0 0 15px rgba(13,110,253,0.5);
+            transition: all 0.6s ease;
+        }
     </style>
 </asp:Content>
 
@@ -82,11 +88,11 @@
     </asp:Panel>
 
     <!-- Upload Document Section -->
-    <div class="row mb-4">
+    <div class="row mb-4" id="uploadSection">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-upload"></i>Upload Document</h5>
+                    <h5 class="mb-0"><i class="fas fa-upload"></i> Upload Document</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -142,11 +148,11 @@
     </div>
 
     <!-- Search Section -->
-    <div class="row mb-4">
+    <div class="row mb-4" id="searchSection">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-search"></i>Search Documents</h5>
+                    <h5 class="mb-0"><i class="fas fa-search"></i> Search Documents</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -171,7 +177,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-folder-open"></i>All Documents</h5>
+                    <h5 class="mb-0"><i class="fas fa-folder-open"></i> All Documents</h5>
                 </div>
                 <div class="card-body">
                     <asp:GridView ID="gvDocuments" runat="server"
@@ -253,6 +259,7 @@
 
 <asp:Content ID="Content3" ContentPlaceHolderID="scripts" runat="server">
     <script>
+
         function validateFileSize(input) {
             const maxSize = 52428800; // 50 MB in bytes
             const errorElement = document.getElementById('fileSizeError');
@@ -282,5 +289,29 @@
             }
             return true;
         }
+
+        window.onload = function () {
+
+            const params = new URLSearchParams(window.location.search);
+            const focus = params.get('focus');
+
+            let target = null;
+
+            if (focus === 'upload') {
+                target = document.getElementById('uploadSection');
+            } else if (focus === 'search') {
+                target = document.getElementById('searchSection');
+            }
+
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                target.classList.add('highlight-section');
+
+                setTimeout(() => {
+                    target.classList.remove('highlight-section');
+                }, 3000);
+            }
+        };
+
     </script>
 </asp:Content>

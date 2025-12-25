@@ -31,14 +31,14 @@ namespace ReliableCDMS.Helpers
                     {
                         DateTime lastLogged = _recentEntries[entryKey];
 
-                        if (DateTime.Now - lastLogged < DuplicateWindow)
+                        if (DateTime.UtcNow - lastLogged < DuplicateWindow)
                         {
                             return; // skip this log entry
                         }
                     }
 
                     // Update recent entries
-                    _recentEntries[entryKey] = DateTime.Now;
+                    _recentEntries[entryKey] = DateTime.UtcNow;
 
                     // Clean up old entries
                     if (_recentEntries.Count > 100)
@@ -46,7 +46,7 @@ namespace ReliableCDMS.Helpers
                         var expiredKeys = new List<string>();
                         foreach (var kvp in _recentEntries)
                         {
-                            if (DateTime.Now - kvp.Value > DuplicateWindow)
+                            if (DateTime.UtcNow - kvp.Value > DuplicateWindow)
                             {
                                 expiredKeys.Add(kvp.Key);
                             }

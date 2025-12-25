@@ -69,7 +69,7 @@
                 </asp:RequiredFieldValidator>
             </div>
 
-            <div class="form-check mb-3" style="margin-left: 0px;">
+            <div class="form-check mb-3">
                 <asp:CheckBox ID="chkRememberMe" runat="server" />
                 <label class="form-check-label" for="chkRememberMe">
                     Remember me

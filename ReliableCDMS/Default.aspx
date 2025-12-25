@@ -119,17 +119,19 @@
                     <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
                 </div>
                 <div class="card-body">
-                    <a href="Documents.aspx" class="btn btn-primary me-2">
+                    <a href="Documents.aspx?focus=upload" class="btn btn-primary me-2">
                         <i class="fas fa-upload"></i> Upload Document
                     </a>
-                    <a href="Documents.aspx" class="btn btn-info me-2">
+                    <a href="Documents.aspx?focus=search" class="btn btn-info me-2">
                         <i class="fas fa-search"></i> Search Documents
                     </a>
+
                     <% if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin") { %>
-                    <a href="Users.aspx" class="btn btn-success">
+                    <a href="Users.aspx?focus=adduser" class="btn btn-success">
                         <i class="fas fa-user-plus"></i> Add User
                     </a>
                     <% } %>
+
                 </div>
             </div>
         </div>
