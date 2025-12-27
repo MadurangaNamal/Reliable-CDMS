@@ -428,7 +428,7 @@ namespace ReliableCDMS.DAL
         /// <summary>
         /// Update document - Async
         /// </summary>
-        public async Task<bool> UpdateDocumentAsync(int documentId, string filePath, int uploadedBy, string comments, long fileSize)
+        public async Task<bool> UpdateDocumentAsync(int documentId, string filePath, string category, int uploadedBy, string comments, long fileSize)
         {
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -464,7 +464,8 @@ namespace ReliableCDMS.DAL
                                              SET CurrentVersion = @NewVersion, 
                                                  FilePath = @FilePath,
                                                  FileSize = @FileSize,
-                                                 UploadDate = GETDATE()
+                                                 UploadDate = GETDATE(),
+                                                 Category = @Category
                                              WHERE DocumentId = @DocumentId";
 
                         using (SqlCommand cmd = new SqlCommand(updateQuery, conn, transaction))
@@ -473,6 +474,7 @@ namespace ReliableCDMS.DAL
                             cmd.Parameters.AddWithValue("@NewVersion", newVersion);
                             cmd.Parameters.AddWithValue("@FilePath", filePath);
                             cmd.Parameters.AddWithValue("@FileSize", fileSize);
+                            cmd.Parameters.AddWithValue("@Category", category);
 
                             await cmd.ExecuteNonQueryAsync();
                         }

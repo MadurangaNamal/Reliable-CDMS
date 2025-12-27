@@ -127,15 +127,14 @@ namespace ReliableCDMS
                         else
                         {
                             if (string.IsNullOrEmpty(comments))
-                            {
                                 comments = "Updated version";
-                            }
 
-                            await documentDAL.UpdateDocumentAsync(existingDoc.DocumentId, relativeFilePath, userId, comments, fileSize);
+                            await documentDAL.UpdateDocumentAsync(existingDoc.DocumentId, relativeFilePath, category, userId, comments, fileSize);
+
                             documentId = existingDoc.DocumentId;
 
                             await AuditHelper.LogActionAsync(userId, "Update Document Version",
-                                $"Updated document: {fileName} to version {existingDoc.CurrentVersion + 1}",
+                                $"Updated document: {documentId}{fileName} to version {existingDoc.CurrentVersion + 1}",
                                 Request.UserHostAddress);
 
                             ShowSuccess($"Document '{fileName}' updated to version {existingDoc.CurrentVersion + 1}!");
@@ -152,9 +151,8 @@ namespace ReliableCDMS
 
                             // Clean up orphaned file
                             if (File.Exists(filePath))
-                            {
                                 File.Delete(filePath);
-                            }
+
                             return;
                         }
 
