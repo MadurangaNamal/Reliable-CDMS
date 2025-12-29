@@ -4,14 +4,13 @@ using System.Web.Http;
 
 namespace ReliableCDMS.Controllers
 {
-    [RoutePrefix("api/admin")]
+    [RoutePrefix("api/cleanup")]
     public class CleanupController : ApiController
     {
         [HttpGet]
-        [Route("cleanup")]
         public IHttpActionResult CleanupOrphanedFiles()
         {
-            if (!User.Identity.IsAuthenticated)
+            if (!SecurityHelper.IsAuthenticated() || !SecurityHelper.IsAdmin())
             {
                 return Unauthorized();
             }

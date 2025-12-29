@@ -28,7 +28,7 @@ namespace ReliableCDMS.Controllers
             try
             {
                 // Basic authentication check
-                if (!IsAuthenticated())
+                if (!SecurityHelper.IsAuthenticated())
                 {
                     return Unauthorized();
                 }
@@ -68,7 +68,7 @@ namespace ReliableCDMS.Controllers
         {
             try
             {
-                if (!IsAuthenticated())
+                if (!SecurityHelper.IsAuthenticated())
                 {
                     return Unauthorized();
                 }
@@ -97,7 +97,7 @@ namespace ReliableCDMS.Controllers
         {
             try
             {
-                if (!IsAuthenticated())
+                if (!SecurityHelper.IsAuthenticated())
                 {
                     return Unauthorized();
                 }
@@ -114,7 +114,7 @@ namespace ReliableCDMS.Controllers
                 string category = httpRequest.Form["category"] ?? "General";
 
                 // Get user ID from session or auth header
-                int userId = GetAuthenticatedUserId();
+                int userId = SecurityHelper.GetAuthenticatedUserId();
 
                 // Save file
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
@@ -159,7 +159,7 @@ namespace ReliableCDMS.Controllers
         {
             try
             {
-                if (!IsAuthenticated())
+                if (!SecurityHelper.IsAuthenticated())
                 {
                     return Unauthorized();
                 }
@@ -173,7 +173,7 @@ namespace ReliableCDMS.Controllers
 
                 var file = httpRequest.Files[0];
                 string comments = httpRequest.Form["comments"] ?? "Updated version";
-                int userId = GetAuthenticatedUserId();
+                int userId = SecurityHelper.GetAuthenticatedUserId();
 
                 // Save new version
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
@@ -216,12 +216,12 @@ namespace ReliableCDMS.Controllers
         {
             try
             {
-                if (!IsAuthenticated())
+                if (!SecurityHelper.IsAuthenticated())
                 {
                     return Unauthorized();
                 }
 
-                int userId = GetAuthenticatedUserId();
+                int userId = SecurityHelper.GetAuthenticatedUserId();
                 bool success = documentDAL.DeleteDocument(id);
 
                 if (success)
@@ -253,7 +253,7 @@ namespace ReliableCDMS.Controllers
         {
             try
             {
-                if (!IsAuthenticated())
+                if (!SecurityHelper.IsAuthenticated())
                 {
                     return Unauthorized();
                 }
@@ -285,93 +285,6 @@ namespace ReliableCDMS.Controllers
             catch (Exception ex)
             {
                 return InternalServerError(ex);
-            }
-        }
-
-        #endregion
-
-        #region Helper Methods
-
-        /// <summary>
-        /// Basic authentication check using username/password in header or session
-        /// </summary>
-        private bool IsAuthenticated()
-        {
-            try
-            {
-                var request = HttpContext.Current.Request;
-
-                // Check for Basic Authentication header
-                var authHeader = request.Headers["Authorization"];
-
-                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
-                {
-                    try
-                    {
-                        string encodedCredentials = authHeader.Substring("Basic ".Length).Trim();
-                        string credentials = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
-                        string[] parts = credentials.Split(':');
-
-                        if (parts.Length == 2)
-                        {
-                            string username = parts[0];
-                            string password = parts[1];
-                            string passwordHash = SecurityHelper.HashPassword(password);
-
-                            UserDAL userDAL = new UserDAL();
-                            var user = userDAL.AuthenticateUser(username, passwordHash);
-
-                            if (user != null && SecurityHelper.VerifyPassword(password, user.PasswordHash))
-                            {
-                                // Store user info in Items for this request only (not session)
-                                HttpContext.Current.Items["AuthUserId"] = user.UserId;
-                                HttpContext.Current.Items["AuthUsername"] = user.Username;
-                                HttpContext.Current.Items["AuthUserRole"] = user.Role;
-
-                                return true;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Authentication error: " + ex.Message);
-                        return false;
-                    }
-                }
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("IsAuthenticated error: " + ex.Message);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Get authenticated user ID
-        /// </summary>
-        private int GetAuthenticatedUserId()
-        {
-            try
-            {
-                // Get from Items (set during IsAuthenticated)
-                if (HttpContext.Current.Items["AuthUserId"] != null)
-                {
-                    return Convert.ToInt32(HttpContext.Current.Items["AuthUserId"]);
-                }
-
-                // Fallback: re-authenticate if needed
-                if (IsAuthenticated() && HttpContext.Current.Items["AuthUserId"] != null)
-                {
-                    return Convert.ToInt32(HttpContext.Current.Items["AuthUserId"]);
-                }
-
-                return 0;
-            }
-            catch
-            {
-                return 0;
             }
         }
 

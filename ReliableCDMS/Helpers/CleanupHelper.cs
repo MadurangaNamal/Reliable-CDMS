@@ -41,6 +41,7 @@ namespace ReliableCDMS.Helpers
                 {
                     // Get current document files
                     string query1 = "SELECT FilePath FROM Documents WHERE IsDeleted = 0";
+
                     using (SqlCommand cmd = new SqlCommand(query1, conn))
                     {
                         conn.Open();
@@ -57,6 +58,7 @@ namespace ReliableCDMS.Helpers
 
                     // Get all version history files
                     string query2 = "SELECT FilePath FROM DocumentVersions";
+
                     using (SqlCommand cmd = new SqlCommand(query2, conn))
                     {
                         using (SqlDataReader reader = cmd.ExecuteReader())

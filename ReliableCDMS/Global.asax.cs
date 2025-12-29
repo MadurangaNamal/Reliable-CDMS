@@ -19,6 +19,7 @@ namespace ReliableCDMS
             try
             {
                 var cleanupResult = Helpers.CleanupHelper.RemoveOrphanedFiles();
+
                 Debug.WriteLine($"Cleanup Result: Success={cleanupResult.Success}, Message={cleanupResult.Message}," +
                     $" FilesDeleted={cleanupResult.FilesDeleted}");
             }

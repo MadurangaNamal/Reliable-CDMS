@@ -21,7 +21,7 @@ namespace ReliableCDMS.Helpers
             // Replace invalid characters
             foreach (char charater in InvalidFileNameChars)
             {
-                fileName.Replace(charater, '_');
+                _ = fileName.Replace(charater, '_');
             }
 
             // Remove dangerous characters (any remaining)
