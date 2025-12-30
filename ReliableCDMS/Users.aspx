@@ -92,7 +92,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> Add New User</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-plus"></i>Add New User</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -132,8 +132,16 @@
                         </div>
                         <div class="col-md-2">
                             <div class="mb-3">
-                                <label for="txtDepartment" class="form-label">Department</label>
-                                <asp:TextBox ID="txtDepartment" runat="server" CssClass="form-control" placeholder="Enter name"></asp:TextBox>
+                                <label for="ddlDepartment" class="form-label">Department</label>
+                                <asp:DropDownList ID="ddlDepartment" runat="server" CssClass="form-select">
+                                    <asp:ListItem Value="General">General</asp:ListItem>
+                                    <asp:ListItem Value="HR">HR</asp:ListItem>
+                                    <asp:ListItem Value="Finance">Finance</asp:ListItem>
+                                    <asp:ListItem Value="IT">IT</asp:ListItem>
+                                    <asp:ListItem Value="Sales">Sales</asp:ListItem>
+                                    <asp:ListItem Value="Marketing">Marketing</asp:ListItem>
+                                    <asp:ListItem Value="Legal">Legal</asp:ListItem>
+                                </asp:DropDownList>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -154,7 +162,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-users"></i> All Users</h5>
+                    <h5 class="mb-0"><i class="fas fa-users"></i>All Users</h5>
                 </div>
                 <div class="card-body">
                     <asp:GridView ID="gvUsers" runat="server"

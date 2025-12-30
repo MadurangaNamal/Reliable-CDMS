@@ -96,13 +96,13 @@ namespace ReliableCDMS
         protected global::System.Web.UI.WebControls.DropDownList ddlRole;
 
         /// <summary>
-        /// txtDepartment control.
+        /// ddlDepartment control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartment;
+        protected global::System.Web.UI.WebControls.DropDownList ddlDepartment;
 
         /// <summary>
         /// btnAddUser control.

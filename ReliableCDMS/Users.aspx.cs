@@ -57,7 +57,7 @@ namespace ReliableCDMS
                 string username = txtUsername.Text.Trim();
                 string password = txtPassword.Text;
                 string role = ddlRole.SelectedValue;
-                string department = txtDepartment.Text.Trim();
+                string department = ddlDepartment.SelectedValue;
 
                 // Hash password
                 string passwordHash = SecurityHelper.HashPassword(password);
@@ -79,7 +79,7 @@ namespace ReliableCDMS
                     // Clear form
                     txtUsername.Text = "";
                     txtPassword.Text = "";
-                    txtDepartment.Text = "";
+                    ddlDepartment.SelectedIndex = 0;
                     ddlRole.SelectedIndex = 0;
                 }
                 else
