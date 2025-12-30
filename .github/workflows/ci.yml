@@ -15,7 +15,7 @@ jobs:
         dotnet-version: ['4.8']
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup .NET Framework
       uses: microsoft/setup-msbuild@v1
@@ -43,7 +43,7 @@ jobs:
     
     - name: Upload build artifacts
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: release-build
         path: ReliableCDMS/bin/Release/
@@ -53,7 +53,7 @@ jobs:
     continue-on-error: true
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup .NET Framework
       uses: microsoft/setup-msbuild@v1
@@ -66,7 +66,7 @@ jobs:
     continue-on-error: true
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Run Dependabot check
       continue-on-error: true
