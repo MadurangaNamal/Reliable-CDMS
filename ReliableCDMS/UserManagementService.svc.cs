@@ -13,34 +13,6 @@ namespace ReliableCDMS
         private readonly UserDAL userDAL = new UserDAL();
 
         /// <summary>
-        /// Authenticate user for SOAP service
-        /// </summary>
-        private bool AuthenticateServiceUser(string username, string password, out int userId, out string userRole)
-        {
-            userId = 0;
-            userRole = string.Empty;
-
-            try
-            {
-                string passwordHash = SecurityHelper.HashPassword(password);
-                var user = userDAL.AuthenticateUser(username, passwordHash);
-
-                if (user != null)
-                {
-                    userId = user.UserId;
-                    userRole = user.Role;
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new AuthenticationException("Authentication error: " + ex.Message);
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Create new user
         /// </summary>
         public ServiceResponse CreateUser(string username, string password, string role, string department, string authUsername, string authPassword)
@@ -66,10 +38,10 @@ namespace ReliableCDMS
                 if (userId > 0)
                 {
                     // Log action
-                    AuditHelper.LogAction(authUserId, 
+                    AuditHelper.LogAction(authUserId,
                         "SOAP Create User",
                         $"Created user via SOAP: {username}, " +
-                        $"Role: {role}", 
+                        $"Role: {role}",
                         HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse
@@ -107,12 +79,11 @@ namespace ReliableCDMS
                     return new ServiceResponse { Success = false, Message = "Unauthorized. Admin role required." };
                 }
 
-                // Update user
                 bool success = userDAL.UpdateUser(userId, department, role);
 
                 if (success)
                 {
-                    AuditHelper.LogAction(authUserId, 
+                    AuditHelper.LogAction(authUserId,
                         "SOAP Update User",
                         $"Updated user via SOAP: User ID: {userId}",
                         HttpContext.Current.Request.UserHostAddress);
@@ -153,14 +124,13 @@ namespace ReliableCDMS
                     return new ServiceResponse { Success = false, Message = "Cannot delete your own account" };
                 }
 
-                // Delete user
                 bool success = userDAL.DeleteUser(userId);
 
                 if (success)
                 {
-                    AuditHelper.LogAction(authUserId, 
+                    AuditHelper.LogAction(authUserId,
                         "SOAP Delete User",
-                        $"Deleted user via SOAP: User ID: {userId}", 
+                        $"Deleted user via SOAP: User ID: {userId}",
                         HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse { Success = true, Message = "User deleted successfully" };
@@ -194,14 +164,13 @@ namespace ReliableCDMS
                     return new ServiceResponse { Success = false, Message = "Unauthorized. Admin role required." };
                 }
 
-                // Activate user
                 bool success = userDAL.ActivateUser(userId);
 
                 if (success)
                 {
-                    AuditHelper.LogAction(authUserId, 
+                    AuditHelper.LogAction(authUserId,
                         "SOAP Activate User",
-                        $"Activated user via SOAP: User ID: {userId}", 
+                        $"Activated user via SOAP: User ID: {userId}",
                         HttpContext.Current.Request.UserHostAddress);
 
                     return new ServiceResponse { Success = true, Message = "User activated successfully" };
@@ -224,13 +193,12 @@ namespace ReliableCDMS
         {
             try
             {
-                
-                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
+
+                if (!AuthenticateServiceUser(authUsername, authPassword, out _, out _))
                 {
                     return null;
                 }
 
-                // Get user
                 var user = userDAL.GetUserById(userId);
 
                 if (user != null)
@@ -260,7 +228,7 @@ namespace ReliableCDMS
         {
             try
             {
-                if (!AuthenticateServiceUser(authUsername, authPassword, out int authUserId, out string authUserRole))
+                if (!AuthenticateServiceUser(authUsername, authPassword, out _, out string authUserRole))
                 {
                     return new UserInfo[0];
                 }
@@ -270,7 +238,6 @@ namespace ReliableCDMS
                     return new UserInfo[0];
                 }
 
-                // Get all users
                 var usersTable = userDAL.GetAllUsers();
                 var usersList = new List<UserInfo>();
 
@@ -292,6 +259,35 @@ namespace ReliableCDMS
             {
                 return new UserInfo[0];
             }
+        }
+
+        /// <summary>
+        /// Authenticate user for SOAP service
+        /// </summary>
+        private bool AuthenticateServiceUser(string username, string password, out int userId, out string userRole)
+        {
+            userId = 0;
+            userRole = string.Empty;
+
+            try
+            {
+                string passwordHash = SecurityHelper.HashPassword(password);
+                var user = userDAL.AuthenticateUser(username, passwordHash);
+
+                if (user != null)
+                {
+                    userId = user.UserId;
+                    userRole = user.Role;
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new AuthenticationException("Authentication error: " + ex.Message);
+            }
+
+            return false;
         }
     }
 }

@@ -35,8 +35,7 @@ namespace ReliableCDMS
             }
             else
             {
-                // Not authenticated, redirect to login
-                Response.Redirect("~/Login.aspx");
+                Response.Redirect("~/Login.aspx");  // Not authenticated, redirect to login
             }
         }
 
@@ -50,9 +49,7 @@ namespace ReliableCDMS
                 string username = Context.User.Identity.Name;
 
                 if (string.IsNullOrEmpty(username))
-                {
                     return;
-                }
 
                 UserDAL userDAL = new UserDAL();
                 var user = userDAL.GetUserByUsername(username);
@@ -92,7 +89,6 @@ namespace ReliableCDMS
             Session.Abandon();
 
             FormsAuthentication.SignOut();
-
             Response.Redirect("~/Login.aspx");
         }
     }

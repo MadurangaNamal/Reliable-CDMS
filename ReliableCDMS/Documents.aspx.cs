@@ -187,7 +187,7 @@ namespace ReliableCDMS
         /// <summary>
         /// Async file save
         /// </summary>
-        private async Task SaveFileAsync(Stream inputStream, string filePath)
+        private static async Task SaveFileAsync(Stream inputStream, string filePath)
         {
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
             {
@@ -343,7 +343,7 @@ namespace ReliableCDMS
         /// <summary>
         /// Format file size for display
         /// </summary>
-        public string FormatFileSize(object fileSize)
+        public static string FormatFileSize(object fileSize)
         {
             if (fileSize == null || fileSize == DBNull.Value)
                 return "0 KB";
