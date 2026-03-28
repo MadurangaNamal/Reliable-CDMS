@@ -1,79 +1,13 @@
 ﻿<%@ Page Title="Documents" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Documents.aspx.cs" Inherits="ReliableCDMS.Documents" MaintainScrollPositionOnPostback="true" Async="true" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <style>
-        .pagination-container table {
-            margin: 20px auto;
-        }
-
-        .pagination-container td {
-            padding: 2px 6px;
-        }
-
-        .pagination-container a {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 0 2px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            color: #0d6efd;
-            text-decoration: none;
-            background-color: #fff;
-            transition: all 0.3s;
-        }
-
-            .pagination-container a:hover {
-                background-color: #0d6efd;
-                color: #fff;
-                border-color: #0d6efd;
-            }
-
-        .pagination-container span {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 0 2px;
-            border: 1px solid #0d6efd;
-            border-radius: 4px;
-            color: #fff;
-            background-color: #0d6efd;
-            font-weight: bold;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-dialog-custom {
-            background: white;
-            border-radius: 8px;
-            padding: 0;
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .highlight-section {
-            border: 2px solid #0d6efd;
-            box-shadow: 0 0 15px rgba(13,110,253,0.5);
-            transition: all 0.6s ease;
-        }
-    </style>
+    <link href="~/Content/Pagination.css" rel="stylesheet" runat="server" />
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
     <div class="row">
         <div class="col-md-12">
-            <h2>Document Management</h2>
+            <h2 class="text-secondary">Document Management</h2>
             <p class="text-muted">Upload, search, and manage documents</p>
             <hr />
         </div>

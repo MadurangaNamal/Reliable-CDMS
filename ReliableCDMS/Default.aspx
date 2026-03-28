@@ -6,8 +6,8 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
     <div class="row">
         <div class="col-md-12">
-            <h2>Dashboard</h2>
-            <p class="text-muted">Welcome to ReliableCDMS - Corporate Document Management System</p>
+            <h2 class="text-secondary">Dashboard</h2>
+            <p class="text-muted">Welcome to ReliableCDMS</p>
             <hr />
         </div>
     </div>
