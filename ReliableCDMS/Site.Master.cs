@@ -10,7 +10,7 @@ namespace ReliableCDMS
 {
     public partial class SiteMaster : MasterPage
     {
-        protected void Page_Load(object sender, EventArgs e)
+        protected void Page_Init(object sender, EventArgs e)
         {
             if (!DatabaseHelper.TestConnection(out string dbError))
             {
@@ -37,6 +37,35 @@ namespace ReliableCDMS
             {
                 Response.Redirect("~/Login.aspx");  // Not authenticated, redirect to login
             }
+        }
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            //if (!DatabaseHelper.TestConnection(out string dbError))
+            //{
+            //    Response.Write($"<div class='alert alert-danger'>Database unavailable: {dbError}</div>");
+            //}
+
+            //if (Context.User.Identity.IsAuthenticated)
+            //{
+            //    // User has valid auth cookie
+            //    if (Session["UserId"] == null)
+            //    {
+            //        RestoreSessionFromAuthCookie(); // Session expired 
+            //    }
+
+            //    // check session restoration
+            //    if (Session["UserId"] == null)
+            //    {
+            //        // Restoration failed, force re-login
+            //        FormsAuthentication.SignOut();
+            //        Response.Redirect("~/Login.aspx?reason=sessionexpired");
+            //    }
+            //}
+            //else
+            //{
+            //    Response.Redirect("~/Login.aspx");  // Not authenticated, redirect to login
+            //}
         }
 
         /// <summary>
