@@ -12,7 +12,9 @@ namespace ReliableCDMS.Helpers
         private static readonly Dictionary<string, DateTime> _recentEntries = new Dictionary<string, DateTime>();
         private static readonly object _lock = new object();
         private static readonly TimeSpan DuplicateWindow = TimeSpan.FromSeconds(2);
-        private static readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+        private static readonly string connString = ConfigurationManager
+            .ConnectionStrings["ReliableCDMSDB"]
+            .ConnectionString;
 
         /// <summary>
         /// Log user action to AuditLog table

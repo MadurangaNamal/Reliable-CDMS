@@ -12,7 +12,9 @@ namespace ReliableCDMS.DAL
     /// </summary>
     public class DocumentDAL
     {
-        private readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+        private readonly string connString = ConfigurationManager
+            .ConnectionStrings["ReliableCDMSDB"]
+            .ConnectionString;
 
         #region Document Operations - synchronous
 

@@ -10,7 +10,7 @@ namespace ReliableCDMS.Controllers
         [HttpGet]
         public IHttpActionResult CleanupOrphanedFiles()
         {
-            if (!SecurityHelper.IsAuthenticated() || !SecurityHelper.IsAdmin())
+            if (!(SecurityHelper.IsAuthenticated() && SecurityHelper.IsAdmin()))
             {
                 return Unauthorized();
             }

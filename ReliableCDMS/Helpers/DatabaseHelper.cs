@@ -16,7 +16,9 @@ namespace ReliableCDMS.Helpers
 
             try
             {
-                string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+                string connString = ConfigurationManager
+                    .ConnectionStrings["ReliableCDMSDB"]
+                    .ConnectionString;
 
                 using (SqlConnection conn = new SqlConnection(connString))
                 {

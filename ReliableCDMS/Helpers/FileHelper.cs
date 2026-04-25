@@ -76,7 +76,6 @@ namespace ReliableCDMS.Helpers
         {
             // Sanitize filename
             string safeFileName = SanitizeFileName(fileName);
-
             string uniqueFileName = Guid.NewGuid().ToString() + "_" + safeFileName;
 
             // Combine with upload folder

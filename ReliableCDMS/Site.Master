@@ -64,10 +64,6 @@
                                     (<%= Session["UserRole"] %>)
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i>Profile</a></li>
-                                <li>
-                                    <hr class="dropdown-divider" />
-                                </li>
                                 <li>
                                     <asp:LinkButton ID="lnkLogout" runat="server" CssClass="dropdown-item" OnClick="lnkLogout_Click">
                                             <i class="fas fa-sign-out-alt"></i> Logout

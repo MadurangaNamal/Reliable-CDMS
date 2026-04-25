@@ -10,7 +10,9 @@ namespace ReliableCDMS.Helpers
 {
     public static class CleanupHelper
     {
-        private static readonly string connString = ConfigurationManager.ConnectionStrings["ReliableCDMSDB"].ConnectionString;
+        private static readonly string connString = ConfigurationManager
+            .ConnectionStrings["ReliableCDMSDB"]
+            .ConnectionString;
 
         /// <summary>
         /// Find and remove orphaned files (files on disk not referenced in database)
